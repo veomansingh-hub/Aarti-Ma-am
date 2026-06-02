@@ -1483,6 +1483,38 @@ function speakQuestionText() {
         speechPrompt = `Look at the shapes. What comes next in the pattern?`;
     }
     
+    if (state.currentQuestion.options && state.currentQuestion.options.length > 0) {
+        const type = state.currentQuestion.type;
+        const optionsText = state.currentQuestion.options.map((opt) => {
+            let txt = opt.toString();
+            if (type === 'size') {
+                if (txt === '🐘') txt = 'Elephant';
+                else if (txt === '🐭') txt = 'Mouse';
+                else if (txt === '🦁') txt = 'Lion';
+                else if (txt === '🐿️') txt = 'Squirrel';
+                else if (txt === '🏠') txt = 'House';
+                else if (txt === '🔑') txt = 'Key';
+                else if (txt === '🚌') txt = 'Bus';
+                else if (txt === '🚲') txt = 'Bicycle';
+                else if (txt === '🐳') txt = 'Whale';
+                else if (txt === '🐟') txt = 'Fish';
+                else if (txt === '🌳') txt = 'Tree';
+                else if (txt === '🌸') txt = 'Flower';
+                else if (txt === '✈️') txt = 'Airplane';
+                else if (txt === '🪁') txt = 'Kite';
+                else if (txt === '🏰') txt = 'Castle';
+                else if (txt === '🧱') txt = 'Brick';
+                else if (txt === '🚢') txt = 'Ship';
+                else if (txt === '⛵') txt = 'Boat';
+                else if (txt === '🦖') txt = 'Dinosaur';
+                else if (txt === '🐛') txt = 'Caterpillar';
+            }
+            return txt;
+        }).join(', or ');
+        
+        speechPrompt += `. Is it: ${optionsText}?`;
+    }
+    
     speakText(speechPrompt);
 }
 
