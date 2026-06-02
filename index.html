@@ -47,18 +47,26 @@
         <section id="view-login" class="view-section active">
             <div class="login-card">
                 <div class="login-illustration float-anim">✨</div>
-                <h1 class="login-title">Select Your Profile</h1>
+                <h1 class="login-title" id="login-title">Select Your Profile</h1>
                 
                 <!-- Kids Avatar Selection (Dynamically populated with sketch landmarks) -->
                 <div class="login-profiles-grid" id="login-profiles-grid"></div>
 
                 <form id="login-form">
+                    <div class="form-group" id="login-username-group" style="display: none; margin-bottom: 15px;">
+                        <label for="login-username">Enter Username:</label>
+                        <input type="text" id="login-username" class="form-input" placeholder="Type username..." autocomplete="off">
+                    </div>
                     <div class="form-group">
-                        <label for="login-password">Enter Your Password:</label>
+                        <label for="login-password" id="login-password-label">Enter Your Password:</label>
                         <input type="password" id="login-password" class="form-input" placeholder="Type password..." required autocomplete="off">
                     </div>
                     <button type="submit" class="login-btn">Start Adventure 🚀</button>
                 </form>
+
+                <div id="login-type-toggle" style="margin-top: 15px; font-size: 14px; cursor: pointer; color: #a855f7; font-weight: 700; text-decoration: underline; text-align: center;">
+                    🔑 Parent/Teacher Login
+                </div>
 
                 <div style="margin-top: 25px; font-weight: 700; color: #a855f7; font-size: 15px; letter-spacing: 0.5px;">
                     Made with Sparkles by Aarti ✨🪄
@@ -229,6 +237,22 @@
             
             <div style="text-align: center; margin-top: 30px; font-weight: 700; color: #a855f7; font-size: 15px;">
                 Made with love by Aarti ✨
+            </div>
+        </section>
+
+        <!-- 6. ADMIN/PARENT DASHBOARD (For 'man') -->
+        <section id="view-admin-dashboard" class="view-section" style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+            <div class="parent-header" style="background: linear-gradient(135deg, #f3e8ff, #faf5ff); border: 2px solid #e9d5ff; border-radius: 16px; padding: 25px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px;">
+                <div class="parent-title">
+                    <h2 style="color: #6b21a8; font-weight: 800; font-size: 26px; margin: 0; display: flex; align-items: center; gap: 10px;">📊 Aarti Ma'am Master Progress Dashboard</h2>
+                    <p style="color: #8b5cf6; margin: 5px 0 0 0; font-size: 14px;">Logged in as: <strong>man</strong> (Super Parent/Teacher Mode)</p>
+                </div>
+                <button class="nav-btn primary" id="admin-logout-btn" style="background: #a855f7; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 4px 10px rgba(168,85,247,0.2);">🚪 Log Out</button>
+            </div>
+
+            <!-- Dashboard Grid displaying cards for all kids -->
+            <div id="admin-kids-dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 30px; margin-top: 10px;">
+                <!-- Cards for Jinay, Kiaan, Kiara, Kayra, Kinaya injected dynamically -->
             </div>
         </section>
 

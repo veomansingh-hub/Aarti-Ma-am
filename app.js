@@ -1,3 +1,5 @@
+import gkQuestions from './gk_questions.json';
+
 // ==========================================
 // 1. CONSTANTS, USER PROFILES, AND CONFIG
 // ==========================================
@@ -406,6 +408,55 @@ function speakText(text) {
 // ==========================================
 // 3. DYNAMIC GENERATOR (100 UNIQUE QUESTIONS PER LEVEL)
 // ==========================================
+function getGkIllustration(level, qText) {
+    if (level === 1) return '🎨';
+    if (level === 2) {
+        const lower = qText.toLowerCase();
+        if (lower.includes('camel')) return '🐪';
+        if (lower.includes('peacock')) return '🦚';
+        if (lower.includes('tiger')) return '🐅';
+        if (lower.includes('chinkara')) return '🦌';
+        if (lower.includes('fox')) return '🦊';
+        if (lower.includes('lizard')) return '🦎';
+        if (lower.includes('snake')) return '🐍';
+        if (lower.includes('tortoise') || lower.includes('turtle')) return '🐢';
+        if (lower.includes('eagle')) return '🦅';
+        if (lower.includes('ant')) return '🐜';
+        if (lower.includes('fish')) return '🐟';
+        if (lower.includes('cow')) return '🐄';
+        if (lower.includes('cat')) return '🐱';
+        if (lower.includes('horse')) return '🐎';
+        if (lower.includes('goat')) return '🐐';
+        if (lower.includes('sheep')) return '🐑';
+        if (lower.includes('bustard') || lower.includes('godawan') || lower.includes('bird')) return '🦚';
+        return '🐪';
+    }
+    if (level === 3) {
+        const lower = qText.toLowerCase();
+        if (lower.includes('dal') || lower.includes('baati') || lower.includes('churma')) return '🥣';
+        if (lower.includes('ghevar') || lower.includes('sweet') || lower.includes('ladoo') || lower.includes('sweet')) return '🍰';
+        if (lower.includes('lassi') || lower.includes('drink')) return '🥛';
+        if (lower.includes('roti') || lower.includes('papad')) return '🫓';
+        if (lower.includes('holi')) return '🎨';
+        if (lower.includes('diwali') || lower.includes('lamp') || lower.includes('diya')) return '🪔';
+        if (lower.includes('kite')) return '🪁';
+        if (lower.includes('teej') || lower.includes('swing')) return '🪁';
+        if (lower.includes('mela') || lower.includes('fair')) return '🎪';
+        return '🍲';
+    }
+    if (level === 4) {
+        const lower = qText.toLowerCase();
+        if (lower.includes('hawa')) return '🏛️';
+        if (lower.includes('fort')) return '🏰';
+        if (lower.includes('lake') || lower.includes('water') || lower.includes('pichola') || lower.includes('sagar')) return '💧';
+        if (lower.includes('jal')) return '⛲';
+        if (lower.includes('boat')) return '⛵';
+        if (lower.includes('temple')) return '🕌';
+        return '🏰';
+    }
+    return '✨';
+}
+
 function generateLevelQuestions(category, level) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercaseAlphabet = 'abcdefghijklmnopqrstuvwxyz';
@@ -887,222 +938,18 @@ function generateLevelQuestions(category, level) {
     }
 
     if (category === 'gktrivia') {
-        if (level === 1) {
-            // Colors of Rajasthan & India - 100 unique questions
-            const baseTriviaColors = [
-                { q: "What color is Jaipur, the famous Pink City?", ans: "Pink", distracts: ["Blue", "Yellow"] },
-                { q: "What color is Jodhpur, the famous Blue City?", ans: "Blue", distracts: ["Pink", "Green"] },
-                { q: "What color is Udaipur, the famous White City?", ans: "White", distracts: ["Black", "Yellow"] },
-                { q: "What color is Jaisalmer, the Golden City?", ans: "Golden", distracts: ["Red", "Purple"] },
-                { q: "What color are the walls of Hawa Mahal palace?", ans: "Pink", distracts: ["Green", "Blue"] },
-                { q: "What color is the sand in the Thar Desert?", ans: "Yellow", distracts: ["White", "Red"] },
-                { q: "What color is the top band of the Indian Flag?", ans: "Saffron", distracts: ["Green", "Blue"] },
-                { q: "What color is the middle band of the Indian Flag?", ans: "White", distracts: ["Orange", "Yellow"] },
-                { q: "What color is the bottom band of the Indian Flag?", ans: "Green", distracts: ["Red", "Blue"] },
-                { q: "What color is the wheel (Chakra) on the Indian Flag?", ans: "Blue", distracts: ["Black", "White"] }
-            ];
-            
-            const generalGkColors = [
-                "Red", "Yellow", "Green", "Blue", "White", "Black", "Pink", "Orange", "Purple", "Brown"
-            ];
-            
-            for (let i = 0; i < 100; i++) {
-                if (i < 20) {
-                    const base = baseTriviaColors[i % baseTriviaColors.length];
-                    const qText = `${base.q} (#${i + 1})`;
-                    const options = shuffleArray([base.ans, base.distracts[0], base.distracts[1]]);
-                    
-                    questions.push({
-                        questionText: qText,
-                        options: options,
-                        answerIndex: options.indexOf(base.ans),
-                        illustration: '🎨',
-                        type: 'text'
-                    });
-                } else {
-                    const color = generalGkColors[i % generalGkColors.length];
-                    const qText = `Help Aarti Ma'am find the ${color} color block! (Color #${i + 1})`;
-                    const distracts = generalGkColors.filter(c => c !== color);
-                    const shuffledD = shuffleArray(distracts);
-                    const options = shuffleArray([color, shuffledD[0], shuffledD[1]]);
-                    
-                    questions.push({
-                        questionText: qText,
-                        options: options,
-                        answerIndex: options.indexOf(color),
-                        illustration: '🎨',
-                        type: 'text'
-                    });
-                }
-            }
-        }
-        else if (level === 2) {
-            // Animals of the Desert - 100 unique questions
-            const animals = [
-                { name: 'Camel', trait: 'Ship of the Desert', emoji: '🐪' },
-                { name: 'Peacock', trait: 'National Bird of India', emoji: '🦚' },
-                { name: 'Tiger', trait: 'Striped king found in Ranthambore', emoji: '🐅' },
-                { name: 'Chinkara', trait: 'State Animal of Rajasthan', emoji: '🦌' },
-                { name: 'Elephant', trait: 'Giant animal with trunk in Amber Fort', emoji: '🐘' },
-                { name: 'Langur Monkey', trait: 'Black-faced monkey jumping on temples', emoji: '🐵' },
-                { name: 'Desert Cat', trait: 'Small wild cat hunting in sand dunes', emoji: '🐱' },
-                { name: 'Cobra Snake', trait: 'Long hood snake showing dance', emoji: '🐍' },
-                { name: 'Bustard Bird', trait: 'Great heavy bird flying in desert grass', emoji: '🦤' },
-                { name: 'Squirrel', trait: 'Small striped friend eating nuts in gardens', emoji: '🐿️' }
-            ];
-            
-            const templates = [
-                "Which animal is called the \"{t}\"?",
-                "Which creature is the \"{t}\"?",
-                "Help Aarti Ma'am find the \"{t}\"!",
-                "Find the animal known as the \"{t}\"!",
-                "Tap the animal showing the \"{t}\"!",
-                "Aarti Ma'am wants to know: what is the \"{t}\"?",
-                "Click on the \"{t}\"!",
-                "Can you spot the \"{t}\"?",
-                "Identify the creature of the desert: \"{t}\"!",
-                "Look for the \"{t}\"!"
-            ];
-            
-            for (let i = 0; i < 100; i++) {
-                const base = animals[Math.floor(i / 10)];
-                const template = templates[i % 10];
-                const qText = template.replace('{t}', base.trait);
-                
-                const distractors = animals.filter(a => a.name !== base.name).map(a => a.name);
-                const shuffledD = shuffleArray(distractors);
-                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
-                
-                questions.push({
-                    questionText: qText,
-                    options: options,
-                    answerIndex: options.indexOf(base.name),
-                    illustration: base.emoji,
-                    type: 'text'
-                });
-            }
-        }
-        else if (level === 3) {
-            // Food & Festivals - 100 unique questions
-            const items = [
-                { name: 'Dal Baati Churma', desc: 'famous round bread with lentils', emoji: '🥣' },
-                { name: 'Ghoomar', desc: 'spinning round folk dance of queens', emoji: '💃' },
-                { name: 'Kathputli Puppets', desc: 'wooden dolls dancing on strings', emoji: '🧸' },
-                { name: 'Turban Pagri', desc: 'colorful headwear worn on the head', emoji: '👳' },
-                { name: 'Samosa', desc: 'triangular spicy potato pastry', emoji: '🥟' },
-                { name: 'Laddoo Sweet', desc: 'sweet orange round ball given on festivals', emoji: '🟡' },
-                { name: 'Kite Festival', desc: 'monsoon day of flying colorful paper in the sky', emoji: '🪁' },
-                { name: 'Diwali Lights', desc: 'festival of lighting clay oil lamps', emoji: '🪔' },
-                { name: 'Holi Colors', desc: 'festival of throwing colorful powders', emoji: '🎨' },
-                { name: 'Ghevar Cake', desc: 'honeycomb sweet cake eaten in monsoon teej', emoji: '🍰' }
-            ];
-            
-            const templates = [
-                "Which Rajasthani item is the \"{d}\"?",
-                "What is the famous \"{d}\"?",
-                "Help Aarti Ma'am find the \"{d}\"!",
-                "Which custom is the \"{d}\"?",
-                "Tap the button that represents the \"{d}\"!",
-                "Choose the famous \"{d}\"!",
-                "Which festival event is the \"{d}\"?",
-                "Find the sweet/dance that is the \"{d}\"!",
-                "Click on the \"{d}\"!",
-                "Which popular item is the \"{d}\"?"
-            ];
-            
-            for (let i = 0; i < 100; i++) {
-                const base = items[Math.floor(i / 10)];
-                const template = templates[i % 10];
-                const qText = template.replace('{d}', base.desc);
-                
-                const distractors = items.filter(it => it.name !== base.name).map(it => it.name);
-                const shuffledD = shuffleArray(distractors);
-                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
-                
-                questions.push({
-                    questionText: qText,
-                    options: options,
-                    answerIndex: options.indexOf(base.name),
-                    illustration: base.emoji,
-                    type: 'text'
-                });
-            }
-        }
-        else if (level === 4) {
-            // Palaces & Lakes - 100 unique questions
-            const places = [
-                { name: 'Hawa Mahal', desc: 'Pink palace with 953 wind windows', emoji: '🏛️' },
-                { name: 'Lake Palace', desc: 'White marble castle floating inside Lake Pichola', emoji: '🏰' },
-                { name: 'Thar Desert', desc: 'Giant dry hot golden sand desert of Rajasthan', emoji: '🌵' },
-                { name: 'Jal Mahal', desc: 'Water palace built inside the center of Man Sagar Lake', emoji: '⛲' },
-                { name: 'Taj Mahal', desc: 'World famous white monument built in Agra city', emoji: '🏛️' },
-                { name: 'Qutub Minar', desc: 'Tallest red sandstone tower built in New Delhi', emoji: '🗼' },
-                { name: 'Golden Temple', desc: 'Beautiful golden temple built in Amritsar lake', emoji: '🕌' },
-                { name: 'India Gate', desc: 'Huge war arch gate located in the center of New Delhi', emoji: '⛩️' },
-                { name: 'Lake Pichola', desc: 'Beautiful historic lake of Udaipur city', emoji: '💧' },
-                { name: 'Mount Abu', desc: 'Only cold green hill station in Rajasthan', emoji: '⛰️' }
-            ];
-            
-            const templates = [
-                "Which place is the \"{d}\"?",
-                "Find the famous landmark: \"{d}\"!",
-                "Help Aarti Ma'am locate the \"{d}\"!",
-                "Identify the building/area: \"{d}\"?",
-                "Which beautiful spot is the \"{d}\"?",
-                "Click on the \"{d}\"!",
-                "Which historic monument is the \"{d}\"?",
-                "Tap the option showing the \"{d}\"!",
-                "Choose the landmark known as the \"{d}\"!",
-                "Look for the \"{d}\"!"
-            ];
-            
-            for (let i = 0; i < 100; i++) {
-                const base = places[Math.floor(i / 10)];
-                const template = templates[i % 10];
-                const qText = template.replace('{d}', base.desc);
-                
-                const distractors = places.filter(p => p.name !== base.name).map(p => p.name);
-                const shuffledD = shuffleArray(distractors);
-                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
-                
-                questions.push({
-                    questionText: qText,
-                    options: options,
-                    answerIndex: options.indexOf(base.name),
-                    illustration: base.emoji,
-                    type: 'text'
-                });
-            }
-        }
-        else if (level === 5) {
-            // Rajasthan Fun Facts - 100 unique questions
-            const facts = [
-                { q: "Which is the biggest state in India by land area?", ans: "Rajasthan", distracts: ["Delhi", "Goa"] },
-                { q: "What is the capital city of Rajasthan?", ans: "Jaipur", distracts: ["Udaipur", "Jodhpur"] },
-                { q: "What is the green state tree of Rajasthan?", ans: "Khejri", distracts: ["Oak", "Pine"] },
-                { q: "What is the yellow state flower of Rajasthan?", ans: "Rohida", distracts: ["Lotus", "Rose"] },
-                { q: "Which is the state game of Rajasthan?", ans: "Basketball", distracts: ["Cricket", "Football"] },
-                { q: "What is the name of the desert in Rajasthan?", ans: "Thar Desert", distracts: ["Sahara", "Gobi"] },
-                { q: "What is the famous city of lakes in Rajasthan?", ans: "Udaipur", distracts: ["Jaipur", "Ajmer"] },
-                { q: "Which hill range passes through Rajasthan?", ans: "Aravalli", distracts: ["Himalayas", "Alps"] },
-                { q: "Which national park in Rajasthan has wild tigers?", ans: "Ranthambore", distracts: ["Gir", "Jim Corbett"] },
-                { q: "Which folk puppets are made of wood and string?", ans: "Kathputli", distracts: ["Shadow", "Sock"] }
-            ];
-            
-            for (let i = 0; i < 100; i++) {
-                const base = facts[i % facts.length];
-                const qText = `${base.q} (Fact Trivia #${i + 1})`;
-                const options = shuffleArray([base.ans, base.distracts[0], base.distracts[1]]);
-                
-                questions.push({
-                    questionText: qText,
-                    options: options,
-                    answerIndex: options.indexOf(base.ans),
-                    illustration: '✨',
-                    type: 'text'
-                });
-            }
-        }
+        const levelQuestions = gkQuestions[level.toString()] || [];
+        levelQuestions.forEach((item) => {
+            const correctOpt = item.options[item.ansIdx];
+            const options = shuffleArray(item.options);
+            questions.push({
+                questionText: item.q,
+                options: options,
+                answerIndex: options.indexOf(correctOpt),
+                illustration: getGkIllustration(level, item.q),
+                type: 'text'
+            });
+        });
     }
     
     return questions;
@@ -1121,11 +968,15 @@ function loadProgress() {
             state.progress[username] = {
                 levels: {},
                 history: [],
-                usageTime: {} 
+                usageTime: {},
+                loginCount: {}
             };
         }
         if (!state.progress[username].usageTime) {
             state.progress[username].usageTime = {};
+        }
+        if (!state.progress[username].loginCount) {
+            state.progress[username].loginCount = {};
         }
     }
 }
@@ -1223,14 +1074,14 @@ function switchView(viewId) {
         document.getElementById('pill-parent').classList.add('active');
     }
     
-    if (viewId === 'view-login') {
+    if (viewId === 'view-login' || viewId === 'view-admin-dashboard') {
         headerProfile.style.display = 'none';
         headerNavPills.style.display = 'none';
         headerLogout.style.display = 'none';
         document.body.className = '';
         stopUsageTracking();
     } else {
-        if (state.currentUser) {
+        if (state.currentUser && state.currentUser !== 'admin') {
             const kid = KIDS_PROFILES[state.currentUser];
             document.body.className = kid.theme;
             
@@ -1290,14 +1141,64 @@ function renderLoginProfiles() {
 
 function setupEventListeners() {
     // 1. Submit Login Form
+    let parentLoginMode = false;
+    const typeToggle = document.getElementById('login-type-toggle');
+    const usernameGroup = document.getElementById('login-username-group');
+    const profilesGrid = document.getElementById('login-profiles-grid');
+    const loginTitle = document.getElementById('login-title');
+    const pwdLabel = document.getElementById('login-password-label');
+    const usernameInput = document.getElementById('login-username');
+    const passwordInput = document.getElementById('login-password');
+
+    typeToggle.addEventListener('click', () => {
+        parentLoginMode = !parentLoginMode;
+        if (parentLoginMode) {
+            profilesGrid.style.display = 'none';
+            usernameGroup.style.display = 'block';
+            usernameInput.required = true;
+            loginTitle.textContent = "🔑 Parent/Teacher Admin Login";
+            pwdLabel.textContent = "Enter Admin Password:";
+            typeToggle.textContent = "🧒 Back to Kid Profiles";
+            usernameInput.value = '';
+            passwordInput.value = '';
+        } else {
+            profilesGrid.style.display = 'grid';
+            usernameGroup.style.display = 'none';
+            usernameInput.required = false;
+            loginTitle.textContent = "Select Your Profile";
+            pwdLabel.textContent = "Enter Your Password:";
+            typeToggle.textContent = "🔑 Parent/Teacher Login";
+            usernameInput.value = '';
+            passwordInput.value = '';
+        }
+    });
+
+    // 1. Submit Login Form
     document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        if (parentLoginMode) {
+            const user = usernameInput.value.trim().toLowerCase();
+            const pass = passwordInput.value.trim();
+            
+            if (user === 'man' && pass === 'man') {
+                state.currentUser = 'admin';
+                passwordInput.value = '';
+                usernameInput.value = '';
+                
+                setupAdminDashboardView();
+                switchView('view-admin-dashboard');
+                speakText("Welcome to Aarti Ma'am's master administration portal.");
+            } else {
+                alert("Incorrect parent/admin credentials!");
+            }
+            return;
+        }
         
         const selectedProfile = document.querySelector('.login-profile-select.selected');
         if (!selectedProfile) return;
         
         const username = selectedProfile.getAttribute('data-username');
-        const passwordInput = document.getElementById('login-password');
         const password = passwordInput.value.trim();
         
         const kid = KIDS_PROFILES[username];
@@ -1305,6 +1206,14 @@ function setupEventListeners() {
         if (kid && kid.password === password) {
             state.currentUser = username;
             passwordInput.value = ''; 
+            
+            // Increment today's login count
+            const today = new Date().toISOString().split('T')[0];
+            if (!state.progress[username].loginCount) {
+                state.progress[username].loginCount = {};
+            }
+            state.progress[username].loginCount[today] = (state.progress[username].loginCount[today] || 0) + 1;
+            saveProgress();
             
             setupPlayroomView();
             switchView('view-playroom');
@@ -1859,4 +1768,157 @@ function renderCertificate(levelName, categoryTitle) {
             🖨️ Print Award
         </button>
     `;
+}
+
+function setupAdminDashboardView() {
+    const grid = document.getElementById('admin-kids-dashboard-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const today = new Date().toISOString().split('T')[0];
+
+    for (const username in KIDS_PROFILES) {
+        const kid = KIDS_PROFILES[username];
+        const kidData = state.progress[username] || { levels: {}, history: [], usageTime: {}, loginCount: {} };
+
+        let totalStars = 0;
+        let totalErrors = 0;
+        for (const key in kidData.levels) {
+            const lvlData = kidData.levels[key];
+            totalStars += lvlData.score;
+            totalErrors += lvlData.errors;
+        }
+        
+        const accuracy = totalStars > 0 
+            ? Math.round((totalStars / (totalStars + totalErrors)) * 100) 
+            : 100;
+
+        let totalSecondsSpent = 0;
+        for (const date in kidData.usageTime) {
+            totalSecondsSpent += kidData.usageTime[date];
+        }
+        
+        let timeDisplay = '';
+        if (totalSecondsSpent < 60) {
+            timeDisplay = `${totalSecondsSpent}s`;
+        } else {
+            const mins = Math.floor(totalSecondsSpent / 60);
+            const secs = totalSecondsSpent % 60;
+            timeDisplay = `${mins}m ${secs}s`;
+        }
+
+        const todaySeconds = kidData.usageTime[today] || 0;
+        const todayTimeDisplay = todaySeconds < 60 ? `${todaySeconds}s` : `${Math.floor(todaySeconds/60)}m ${todaySeconds%60}s`;
+
+        const todayLogins = (kidData.loginCount && kidData.loginCount[today]) || 0;
+        let totalLogins = 0;
+        for (const date in kidData.loginCount || {}) {
+            totalLogins += kidData.loginCount[date];
+        }
+
+        let phProgress = 0;
+        let mathProgress = 0;
+        let gkProgress = 0;
+
+        for (const key in kidData.levels) {
+            const lvlData = kidData.levels[key];
+            if (key.startsWith('phonics_')) phProgress += lvlData.score;
+            else if (key.startsWith('math_')) mathProgress += lvlData.score;
+            else if (key.startsWith('gktrivia_')) gkProgress += lvlData.score;
+        }
+
+        const phPct = Math.round((phProgress / 500) * 100);
+        const mathPct = Math.round((mathProgress / 500) * 100);
+        const gkPct = Math.round((gkProgress / 500) * 100);
+
+        const card = document.createElement('div');
+        card.style.background = 'white';
+        card.style.borderRadius = '20px';
+        card.style.padding = '25px';
+        card.style.boxShadow = '0 8px 30px rgba(0,0,0,0.05)';
+        card.style.border = '2px solid #f3e8ff';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '20px';
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+
+        card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #faf5ff; padding-bottom: 15px;">
+                <div style="width: 55px; height: 55px; border-radius: 50%; background: #faf5ff; color: var(--theme-color-primary); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2px solid #f3e8ff;">
+                    <div style="width: 35px; height: 35px; color: #a855f7;">${kid.avatar}</div>
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #1e1b4b;">${kid.name}</h3>
+                    <span style="font-size: 12px; color: #8b5cf6; font-weight: 700;">Landmark: ${kid.landmarkName}</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div style="background: #faf5ff; padding: 15px; border-radius: 14px; text-align: center; border: 1px solid #f3e8ff;">
+                    <div style="font-size: 24px; font-weight: 800; color: #6b21a8;">⭐ ${totalStars}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #a855f7; margin-top: 5px;">Total Stars</div>
+                </div>
+                <div style="background: #faf5ff; padding: 15px; border-radius: 14px; text-align: center; border: 1px solid #f3e8ff;">
+                    <div style="font-size: 24px; font-weight: 800; color: #6b21a8;">🎯 ${accuracy}%</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #a855f7; margin-top: 5px;">Accuracy</div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #4b5563; background: #faf5ff; padding: 15px; border-radius: 14px; border: 1px solid #f3e8ff;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>🕒 Time Today:</span>
+                    <strong style="color: #6b21a8;">${todayTimeDisplay}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>⏳ Total Time (Lifetime):</span>
+                    <strong style="color: #6b21a8;">${timeDisplay}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>🚪 Logins Today:</span>
+                    <strong style="color: #6b21a8;">${todayLogins} times</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>🔄 Total Logins (Lifetime):</span>
+                    <strong style="color: #6b21a8;">${totalLogins}</strong>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <h4 style="margin: 0; font-size: 13px; font-weight: 800; color: #374151;">Category Breakdown</h4>
+                
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px;">
+                        <span>🍎 Phonics (${phProgress}/500 Stars)</span>
+                        <span>${phPct}%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #f3e8ff; border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${phPct}%; height: 100%; background: #a855f7; border-radius: 4px;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px;">
+                        <span>🔢 Math (${mathProgress}/500 Stars)</span>
+                        <span>${mathPct}%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #e0f2fe; border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${mathPct}%; height: 100%; background: #0ea5e9; border-radius: 4px;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px;">
+                        <span>🧠 GK Trivia (${gkProgress}/500 Stars)</span>
+                        <span>${gkPct}%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #dcfce7; border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${gkPct}%; height: 100%; background: #22c55e; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        grid.appendChild(card);
+    }
 }
