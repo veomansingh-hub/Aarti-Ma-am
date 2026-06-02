@@ -376,7 +376,17 @@ main {
 }
 
 .login-profile-select .avatar {
-    font-size: 28px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar svg, .avatar-circle svg {
+    width: 85%;
+    height: 85%;
+    display: block;
+    color: #475569; /* Slate sketch lines */
 }
 .login-profile-select .name {
     font-size: 12px;

@@ -2,12 +2,20 @@
 // 1. CONSTANTS, USER PROFILES, AND CONFIG
 // ==========================================
 
+const LANDMARKS_SVG = {
+    tajmahal: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M30 70 h40 v10 h-40 z M35 70 v-18 c0-10 30-10 30 0 v18 M50 52 v-15 M50 25 h-6 v-2 h6 M15 40 v40 M85 40 v40 M20 80 h60"/></svg>`,
+    hawamahal: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 80 h60 M30 80 v-40 h40 v40 M40 80 v-20 h20 v20 M30 60 h40 M30 40 h40 M35 40 c0-8 10-8 15 0 c0-8 10-8 15 0"/></svg>`,
+    qutubminar: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M42 80 L46 20 h8 L58 80 z M42 80 h16 M44 60 h12 M45 40 h10 M42 75 h16 M43 50 h14 M47 20 v-8 h6 v8"/></svg>`,
+    goldentemple: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 80 h70 M25 80 v-20 h50 v20 M35 60 v-15 h30 v15 M40 45 c0-10 20-10 20 0 Z M50 35 v-10 M10 85 h80 M15 90 h70"/></svg>`,
+    indiagate: `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M25 80 v-45 h50 v45 M38 80 v-20 c0-8 24-8 24 0 v20 M20 80 h60 M30 35 v-8 h40 v8 M35 27 h30"/></svg>`
+};
+
 const KIDS_PROFILES = {
-    jinay: { name: 'Jinay', password: 'j1', avatar: '🦁', theme: 'theme-leo' },
-    kiaan: { name: 'Kiaan', password: 'k2', avatar: '🐵', theme: 'theme-maya' },
-    kiara: { name: 'Kiara', password: 'k3', avatar: '🐿️', theme: 'theme-sam' },
-    kayra: { name: 'Kayra', password: 'k4', avatar: '🐘', theme: 'theme-ella' },
-    kinaya: { name: 'Kinaya', password: 'k5', avatar: '🦉', theme: 'theme-noah' }
+    jinay: { name: 'Jinay', password: '2041', avatar: LANDMARKS_SVG.tajmahal, landmarkName: 'Taj Mahal 🏛️', theme: 'theme-leo' },
+    kiaan: { name: 'Kiaan', password: '5892', avatar: LANDMARKS_SVG.hawamahal, landmarkName: 'Hawa Mahal 🏛️', theme: 'theme-maya' },
+    kiara: { name: 'Kiara', password: '7134', avatar: LANDMARKS_SVG.qutubminar, landmarkName: 'Qutub Minar 🗼', theme: 'theme-sam' },
+    kayra: { name: 'Kayra', password: '8461', avatar: LANDMARKS_SVG.goldentemple, landmarkName: 'Golden Temple 🕌', theme: 'theme-ella' },
+    kinaya: { name: 'Kinaya', password: '3957', avatar: LANDMARKS_SVG.indiagate, landmarkName: 'India Gate ⛩️', theme: 'theme-noah' }
 };
 
 const CATEGORIES = {
@@ -501,8 +509,8 @@ function getQuestion(category, level, qIndex) {
                 { letter: 'F', word: '_ish', fill: 'F', full: 'Fish', img: '🐟' },
                 { letter: 'G', word: '_rapes', fill: 'G', full: 'Grapes', img: '🍇' },
                 { letter: 'H', word: '_ouse', fill: 'H', full: 'House', img: '🏠' },
-                { letter: 'I', word: '_gloo', fill: 'I', full: 'Igloo', img: '❄️' },
-                { letter: 'J', word: '_elly', fill: 'J', full: 'Jelly', img: '🍮' }
+                { letter: 'I', word: '_gloo', fill: 'I', fill: 'Igloo', img: '❄️' },
+                { letter: 'J', word: '_elly', fill: 'J', fill: 'Jelly', img: '🍮' }
             ];
             const item = items[qIndex % items.length];
             const correctFill = item.fill;
@@ -674,7 +682,7 @@ function getQuestion(category, level, qIndex) {
         }
     }
 
-    // GK TRIVIA DATABASE (RAJASTHAN SPECIFIC - 5 Levels, 50 questions each)
+    // GK TRIVIA DATABASE (RAJASTHAN SPECIFIC)
     if (category === 'gktrivia') {
         if (level === 1) {
             const items = [
@@ -802,7 +810,7 @@ function loadProgress() {
             state.progress[username] = {
                 levels: {},
                 history: [],
-                usageTime: {} // Forever tracked structure: { "YYYY-MM-DD": seconds }
+                usageTime: {} 
             };
         }
         if (!state.progress[username].usageTime) {
@@ -815,7 +823,6 @@ function saveProgress() {
     localStorage.setItem('toddler_land_progress', JSON.stringify(state.progress));
 }
 
-// Keep updating usage time in the background when active (runs every 5 seconds)
 function startUsageTracking() {
     if (state.activeTrackingInterval) clearInterval(state.activeTrackingInterval);
     
@@ -828,7 +835,6 @@ function startUsageTracking() {
         if (!kidData.usageTime) kidData.usageTime = {};
         if (!kidData.usageTime[today]) kidData.usageTime[today] = 0;
         
-        // Add 5 seconds of active usage
         kidData.usageTime[today] += 5;
         saveProgress();
     }, 5000);
@@ -917,7 +923,7 @@ function switchView(viewId) {
             document.body.className = kid.theme;
             
             headerProfile.style.display = 'flex';
-            document.getElementById('header-avatar').textContent = kid.avatar;
+            document.getElementById('header-avatar').innerHTML = kid.avatar;
             document.getElementById('header-username').textContent = kid.name;
             
             headerNavPills.style.display = 'flex';
@@ -937,23 +943,37 @@ function switchView(viewId) {
 document.addEventListener('DOMContentLoaded', () => {
     Confetti.init();
     loadProgress();
+    renderLoginProfiles();
     setupEventListeners();
-    setupProfileSelection();
     switchView('view-login');
 });
 
-function setupProfileSelection() {
-    const selectorCards = document.querySelectorAll('.login-profile-select');
-    selectorCards.forEach(card => {
+// Render profiles dynamically using Indian landmarks
+function renderLoginProfiles() {
+    const container = document.getElementById('login-profiles-grid');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    let isFirst = true;
+    for (const username in KIDS_PROFILES) {
+        const kid = KIDS_PROFILES[username];
+        const card = document.createElement('div');
+        card.className = `login-profile-select ${isFirst ? 'selected' : ''}`;
+        card.setAttribute('data-username', username);
+        card.innerHTML = `
+            <div class="avatar">${kid.avatar}</div>
+            <div class="name">${kid.name}</div>
+        `;
+        
         card.addEventListener('click', () => {
-            selectorCards.forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.login-profile-select').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
-            
-            const username = card.getAttribute('data-username');
-            const kid = KIDS_PROFILES[username];
             document.body.className = kid.theme;
         });
-    });
+        
+        container.appendChild(card);
+        isFirst = false;
+    }
 }
 
 function setupEventListeners() {
@@ -984,7 +1004,7 @@ function setupEventListeners() {
         }
     });
     
-    // 2. Navigation Pills Clicks (Matches user screenshot)
+    // 2. Navigation Pills Clicks
     document.getElementById('pill-gktrivia').addEventListener('click', () => {
         setupGKTriviaView();
         switchView('view-gktrivia');
@@ -1091,7 +1111,7 @@ function setupPlayroomView() {
     
     const kid = KIDS_PROFILES[state.currentUser];
     document.getElementById('playroom-kid-name').textContent = kid.name;
-    document.getElementById('playroom-kid-emoji').textContent = kid.avatar;
+    document.getElementById('playroom-kid-emoji').innerHTML = `<span style="display:inline-block; width:30px; height:30px; vertical-align:middle; margin-left:10px; color:var(--theme-color-primary);">${kid.avatar}</span>`;
     
     renderPlayroomLevels('phonics', 'phonics-levels-list');
     renderPlayroomLevels('math', 'math-levels-list');
@@ -1169,7 +1189,6 @@ function loadQuestion() {
     const container = document.getElementById('game-dynamic-content');
     container.innerHTML = '';
     
-    // 1. Question Text
     const qTextDiv = document.createElement('div');
     qTextDiv.className = 'question-text';
     qTextDiv.innerHTML = `
@@ -1184,7 +1203,6 @@ function loadQuestion() {
         speakQuestionText();
     });
     
-    // 2. Illustration Area
     const illustrationDiv = document.createElement('div');
     illustrationDiv.className = 'game-illustration float-anim';
     
@@ -1195,7 +1213,6 @@ function loadQuestion() {
     }
     container.appendChild(illustrationDiv);
     
-    // 3. Options Grid
     const optionsGrid = document.createElement('div');
     optionsGrid.className = 'options-grid';
     
@@ -1256,7 +1273,6 @@ function handleAnswerSelect(selectedIdx, btnElement) {
         btnElement.classList.add('correct');
         AudioPlayer.playSuccess();
         Confetti.spawn();
-        
         BalloonPhysics.spawn();
         
         const praises = ['Yay! Super job!', 'Perfect!', 'Awesome!', 'You got it!', 'Hooray!', 'Star Learner!'];
@@ -1280,7 +1296,6 @@ function handleAnswerSelect(selectedIdx, btnElement) {
     }
 }
 
-// Save partial progress
 function advanceQuestion() {
     state.currentQuestionIndex += 1;
     const levelScore = state.currentQuestionIndex;
@@ -1453,7 +1468,6 @@ function setupParentHubView() {
         `;
     }
     
-    // RENDER SCREEN-TIME USAGE LIST (Tracked Forever)
     const usageLog = document.getElementById('parent-usage-list');
     usageLog.innerHTML = '';
     
@@ -1470,7 +1484,6 @@ function setupParentHubView() {
                 timeDisplay = `${min} mins ${remainingSec} secs`;
             }
             
-            // Format date nicely
             const d = new Date(dateStr);
             const formattedDate = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
             
@@ -1486,7 +1499,6 @@ function setupParentHubView() {
         usageLog.innerHTML = `<div style="text-align: center; color: var(--color-gray); font-size: 14px; padding: 10px;">No usage logged yet. Time updates active!</div>`;
     }
     
-    // Render recent activities logs
     const activityLog = document.getElementById('parent-activity-list');
     activityLog.innerHTML = '';
     

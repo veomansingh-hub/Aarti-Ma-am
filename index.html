@@ -49,29 +49,8 @@
                 <div class="login-illustration float-anim">✨</div>
                 <h1 class="login-title">Select Your Profile</h1>
                 
-                <!-- Kids Avatar Selection (Jinay, Kiaan, Kiara, Kayra, Kinaya) -->
-                <div class="login-profiles-grid">
-                    <div class="login-profile-select selected" data-username="jinay" data-avatar="🦁">
-                        <span class="avatar">🦁</span>
-                        <span class="name">Jinay</span>
-                    </div>
-                    <div class="login-profile-select" data-username="kiaan" data-avatar="🐵">
-                        <span class="avatar">🐵</span>
-                        <span class="name">Kiaan</span>
-                    </div>
-                    <div class="login-profile-select" data-username="kiara" data-avatar="🐿️">
-                        <span class="avatar">🐿️</span>
-                        <span class="name">Kiara</span>
-                    </div>
-                    <div class="login-profile-select" data-username="kayra" data-avatar="🐘">
-                        <span class="avatar">🐘</span>
-                        <span class="name">Kayra</span>
-                    </div>
-                    <div class="login-profile-select" data-username="kinaya" data-avatar="🦉">
-                        <span class="avatar">🦉</span>
-                        <span class="name">Kinaya</span>
-                    </div>
-                </div>
+                <!-- Kids Avatar Selection (Dynamically populated with sketch landmarks) -->
+                <div class="login-profiles-grid" id="login-profiles-grid"></div>
 
                 <form id="login-form">
                     <div class="form-group">
@@ -80,10 +59,6 @@
                     </div>
                     <button type="submit" class="login-btn">Start Adventure 🚀</button>
                 </form>
-
-                <div class="login-tip">
-                    🔑 Password: <strong>jinay</strong> is <strong>j1</strong>, others are <strong>k2</strong>, <strong>k3</strong>, <strong>k4</strong>, <strong>k5</strong>
-                </div>
 
                 <div style="margin-top: 25px; font-weight: 700; color: #a855f7; font-size: 15px; letter-spacing: 0.5px;">
                     Made with Sparkles by Aarti ✨🪄
