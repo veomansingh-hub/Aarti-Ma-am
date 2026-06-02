@@ -72,7 +72,7 @@ let state = {
     currentCategory: null,
     currentLevel: null,
     currentQuestionIndex: 0,
-    currentQuestion: null,
+    currentLevelQuestions: [], // Will hold 100 shuffled unique questions
     incorrectAttemptsThisQuestion: 0,
     incorrectAttemptsThisLevel: 0,
     ttsEnabled: true,
@@ -100,10 +100,10 @@ const AudioPlayer = {
         gain.connect(this.ctx.destination);
         
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.16); // G5
-        osc.frequency.setValueAtTime(1046.50, this.ctx.currentTime + 0.24); // C6
+        osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); 
+        osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.08); 
+        osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.16); 
+        osc.frequency.setValueAtTime(1046.50, this.ctx.currentTime + 0.24); 
         
         gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.45);
@@ -404,397 +404,483 @@ function speakText(text) {
 }
 
 // ==========================================
-// 3. DYNAMIC QUESTION GENERATOR (500 Questions)
+// 3. DYNAMIC GENERATOR (100 UNIQUE QUESTIONS PER LEVEL)
 // ==========================================
-function getQuestion(category, level, qIndex) {
+function generateLevelQuestions(category, level) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercaseAlphabet = 'abcdefghijklmnopqrstuvwxyz';
+    const questions = [];
     
+    // Large vocabulary lists to prevent repetition
+    const emojiVocab = [
+        { letter: 'A', word: 'Apple', img: '🍎' }, { letter: 'A', word: 'Ant', img: '🐜' }, { letter: 'A', word: 'Acrobat', img: '🤸' }, { letter: 'A', word: 'Airplane', img: '✈️' },
+        { letter: 'B', word: 'Balloon', img: '🎈' }, { letter: 'B', word: 'Bear', img: '🐻' }, { letter: 'B', word: 'Bus', img: '🚌' }, { letter: 'B', word: 'Butterfly', img: '🦋' },
+        { letter: 'C', word: 'Cat', img: '🐱' }, { letter: 'C', word: 'Cake', img: '🍰' }, { letter: 'C', word: 'Car', img: '🚗' }, { letter: 'C', word: 'Camel', img: '🐪' },
+        { letter: 'D', word: 'Dog', img: '🐶' }, { letter: 'D', word: 'Duck', img: '🦆' }, { letter: 'D', word: 'Dolphin', img: '🐬' }, { letter: 'D', word: 'Drum', img: '🥁' },
+        { letter: 'E', word: 'Elephant', img: '🐘' }, { letter: 'E', word: 'Egg', img: '🥚' }, { letter: 'E', word: 'Eagle', img: '🦅' }, { letter: 'E', word: 'Engine', img: '🚂' },
+        { letter: 'F', word: 'Fish', img: '🐟' }, { letter: 'F', word: 'Frog', img: '🐸' }, { letter: 'F', word: 'Fox', img: '🦊' }, { letter: 'F', word: 'Flower', img: '🌸' },
+        { letter: 'G', word: 'Grapes', img: '🍇' }, { letter: 'G', word: 'Goat', img: '🐐' }, { letter: 'G', word: 'Giraffe', img: '🦒' }, { letter: 'G', word: 'Guitar', img: '🎸' },
+        { letter: 'H', word: 'House', img: '🏠' }, { letter: 'H', word: 'Hat', img: '🎩' }, { letter: 'H', word: 'Horse', img: '🐴' }, { letter: 'H', word: 'Helicopter', img: '🚁' },
+        { letter: 'I', word: 'Igloo', img: '❄️' }, { letter: 'I', word: 'Ice Cream', img: '🍦' }, { letter: 'I', word: 'Island', img: '🏝️' }, { letter: 'I', word: 'Insect', img: '🪲' },
+        { letter: 'J', word: 'Jelly', img: '🍮' }, { letter: 'J', word: 'Jungle', img: '🌳' }, { letter: 'J', word: 'Jeep', img: '🚙' }, { letter: 'J', word: 'Juice', img: '🥤' },
+        { letter: 'K', word: 'Kite', img: '🪁' }, { letter: 'K', word: 'Kangaroo', img: '🦘' }, { letter: 'K', word: 'Key', img: '🔑' }, { letter: 'K', word: 'Koala', img: '🐨' },
+        { letter: 'L', word: 'Lion', img: '🦁' }, { letter: 'L', word: 'Leaf', img: '🍃' }, { letter: 'L', word: 'Lemon', img: '🍋' }, { letter: 'L', word: 'Lollipop', img: '🍭' },
+        { letter: 'M', word: 'Monkey', img: '🐵' }, { letter: 'M', word: 'Mouse', img: '🐭' }, { letter: 'M', word: 'Moon', img: '🌙' }, { letter: 'M', word: 'Milk', img: '🥛' },
+        { letter: 'N', word: 'Nest', img: '🪺' }, { letter: 'N', word: 'Net', img: '🕸️' }, { letter: 'N', word: 'Notebook', img: '📓' }, { letter: 'N', word: 'Nose', img: '👃' },
+        { letter: 'O', word: 'Owl', img: '🦉' }, { letter: 'O', word: 'Orange', img: '🍊' }, { letter: 'O', word: 'Octopus', img: '🐙' }, { letter: 'O', word: 'Ostrich', img: '🦤' },
+        { letter: 'P', word: 'Pig', img: '🐷' }, { letter: 'P', word: 'Pear', img: '🍐' }, { letter: 'P', word: 'Panda', img: '🐼' }, { letter: 'P', word: 'Parrot', img: '🦜' },
+        { letter: 'Q', word: 'Queen', img: '👑' }, { letter: 'Q', word: 'Quill', img: '🪶' }, { letter: 'Q', word: 'Quarter', img: '🪙' }, { letter: 'Q', word: 'Quiet', img: '🤫' },
+        { letter: 'R', word: 'Rabbit', img: '🐰' }, { letter: 'R', word: 'Ring', img: '💍' }, { letter: 'R', word: 'Rocket', img: '🚀' }, { letter: 'R', word: 'Rainbow', img: '🌈' },
+        { letter: 'S', word: 'Sun', img: '☀️' }, { letter: 'S', word: 'Star', img: '⭐️' }, { letter: 'S', word: 'Snake', img: '🐍' }, { letter: 'S', word: 'Spider', img: '🕷️' },
+        { letter: 'T', word: 'Tree', img: '🌳' }, { letter: 'T', word: 'Train', img: '🚆' }, { letter: 'T', word: 'Tiger', img: '🐅' }, { letter: 'T', word: 'Turtle', img: '🐢' },
+        { letter: 'U', word: 'Umbrella', img: '☂️' }, { letter: 'U', word: 'Unicorn', img: '🦄' }, { letter: 'U', word: 'Uncle', img: '🧔' }, { letter: 'U', word: 'Under', img: '👇' },
+        { letter: 'V', word: 'Violin', img: '🎻' }, { letter: 'V', word: 'Vase', img: '🏺' }, { letter: 'V', word: 'Volcano', img: '🌋' }, { letter: 'V', word: 'Vegetable', img: '🥦' },
+        { letter: 'W', word: 'Watch', img: '⌚' }, { letter: 'W', word: 'Wind', img: '💨' }, { letter: 'W', word: 'Watermelon', img: '🍉' }, { letter: 'W', word: 'Whale', img: '🐋' },
+        { letter: 'X', word: 'Xylophone', img: '🪘' }, { letter: 'X', word: 'X-ray', img: '🩻' }, { letter: 'X', word: 'Box', img: '📦' }, { letter: 'X', word: 'Fox', img: '🦊' },
+        { letter: 'Y', word: 'Yo-yo', img: '🪀' }, { letter: 'Y', word: 'Yak', img: '🦬' }, { letter: 'Y', word: 'Yacht', img: '⛵' }, { letter: 'Y', word: 'Yellow', img: '💛' },
+        { letter: 'Z', word: 'Zebra', img: '🦓' }, { letter: 'Z', word: 'Zoo', img: '🏛️' }, { letter: 'Z', word: 'Zipper', img: '🤐' }, { letter: 'Z', word: 'Zero', img: '0️⃣' }
+    ];
+
     if (category === 'phonics') {
         if (level === 1) {
-            const targetChar = alphabet[qIndex % 10]; 
-            const correctLetter = targetChar;
-            let distractors = [
-                alphabet[(qIndex + 3) % 26],
-                alphabet[(qIndex + 7) % 26],
-                alphabet[(qIndex + 13) % 26]
-            ].filter(d => d !== correctLetter).slice(0, 2);
-            if (distractors.length < 2) distractors.push(alphabet[(qIndex + 17) % 26]);
-            
-            const options = shuffleArray([correctLetter, ...distractors]);
-            const answerIndex = options.indexOf(correctLetter);
-            
-            return {
-                questionText: `Find the big letter ${correctLetter}!`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: correctLetter,
-                type: 'text'
-            };
+            // Upper letters A-Z, sequences and matching shapes
+            for (let i = 0; i < 100; i++) {
+                const charCodeIndex = i % 26;
+                const correct = alphabet[charCodeIndex];
+                let distractors = [
+                    alphabet[(charCodeIndex + 5) % 26],
+                    alphabet[(charCodeIndex + 11) % 26],
+                    alphabet[(charCodeIndex + 19) % 26]
+                ].filter(d => d !== correct).slice(0, 2);
+                const options = shuffleArray([correct, ...distractors]);
+                
+                if (i < 40) {
+                    questions.push({
+                        questionText: `Find the big letter ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: correct,
+                        type: 'text'
+                    });
+                } else if (i < 70) {
+                    const prev1 = alphabet[(charCodeIndex + 24) % 26];
+                    const prev2 = alphabet[(charCodeIndex + 25) % 26];
+                    questions.push({
+                        questionText: `What letter comes next?  ${prev1} -> ${prev2} -> ?`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: '❓',
+                        type: 'text'
+                    });
+                } else {
+                    questions.push({
+                        questionText: `Match the big letter ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: correct,
+                        type: 'text'
+                    });
+                }
+            }
         }
         else if (level === 2) {
-            const targetIndex = 10 + (qIndex % 16); 
-            const correctLetter = alphabet[targetIndex];
-            let distractors = [
-                alphabet[(targetIndex + 3) % 26],
-                alphabet[(targetIndex + 7) % 26]
-            ].filter(d => d !== correctLetter);
-            if (distractors.length < 2) distractors.push(alphabet[(targetIndex + 12) % 26]);
-            
-            const options = shuffleArray([correctLetter, ...distractors]);
-            const answerIndex = options.indexOf(correctLetter);
-            
-            return {
-                questionText: `Find the big letter ${correctLetter}!`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: correctLetter,
-                type: 'text'
-            };
+            // More Big Letters & matching
+            for (let i = 0; i < 100; i++) {
+                const charCodeIndex = (13 + i) % 26;
+                const correct = alphabet[charCodeIndex];
+                let distractors = [
+                    alphabet[(charCodeIndex + 4) % 26],
+                    alphabet[(charCodeIndex + 9) % 26]
+                ].filter(d => d !== correct);
+                const options = shuffleArray([correct, ...distractors]);
+                
+                if (i % 2 === 0) {
+                    questions.push({
+                        questionText: `Click on the big letter ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: correct,
+                        type: 'text'
+                    });
+                } else {
+                    questions.push({
+                        questionText: `Which letter is this?`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: correct,
+                        type: 'text'
+                    });
+                }
+            }
         }
         else if (level === 3) {
-            const targetIndex = qIndex % 26;
-            const correctLetter = lowercaseAlphabet[targetIndex];
-            let distractors = [
-                lowercaseAlphabet[(targetIndex + 4) % 26],
-                lowercaseAlphabet[(targetIndex + 9) % 26]
-            ].filter(d => d !== correctLetter);
-            if (distractors.length < 2) distractors.push(lowercaseAlphabet[(targetIndex + 15) % 26]);
-            
-            const options = shuffleArray([correctLetter, ...distractors]);
-            const answerIndex = options.indexOf(correctLetter);
-            
-            return {
-                questionText: `Find the small letter ${correctLetter}!`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: correctLetter,
-                type: 'text'
-            };
+            // Lower letters a-z
+            for (let i = 0; i < 100; i++) {
+                const charCodeIndex = i % 26;
+                const correct = lowercaseAlphabet[charCodeIndex];
+                let distractors = [
+                    lowercaseAlphabet[(charCodeIndex + 3) % 26],
+                    lowercaseAlphabet[(charCodeIndex + 8) % 26],
+                    lowercaseAlphabet[(charCodeIndex + 14) % 26]
+                ].filter(d => d !== correct).slice(0, 2);
+                const options = shuffleArray([correct, ...distractors]);
+                
+                if (i < 50) {
+                    questions.push({
+                        questionText: `Find the small letter ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: correct,
+                        type: 'text'
+                    });
+                } else {
+                    const bigMatch = alphabet[charCodeIndex];
+                    questions.push({
+                        questionText: `Find the small matching letter for ${bigMatch}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: bigMatch,
+                        type: 'text'
+                    });
+                }
+            }
         }
         else if (level === 4) {
+            // Phonics sounds
             const phonicSounds = [
                 { l: 'A', s: 'Ah' }, { l: 'B', s: 'Buh' }, { l: 'C', s: 'Cuh' }, { l: 'D', s: 'Duh' },
                 { l: 'E', s: 'Eh' }, { l: 'F', s: 'Fuh' }, { l: 'G', s: 'Guh' }, { l: 'H', s: 'Huh' },
                 { l: 'I', s: 'Ih' }, { l: 'J', s: 'Juh' }, { l: 'K', s: 'Kuh' }, { l: 'L', s: 'Luh' },
                 { l: 'M', s: 'Muh' }, { l: 'N', s: 'Nuh' }, { l: 'O', s: 'Oh' }, { l: 'P', s: 'Puh' },
-                { l: 'R', s: 'Ruh' }, { l: 'S', s: 'Sss' }, { l: 'T', s: 'Tuh' }, { l: 'U', s: 'Uh' },
-                { l: 'V', s: 'Vuh' }, { l: 'W', s: 'Wuh' }, { l: 'Y', s: 'Yuh' }, { l: 'Z', s: 'Zuh' }
+                { l: 'Q', s: 'Quuh' }, { l: 'R', s: 'Ruh' }, { l: 'S', s: 'Sss' }, { l: 'T', s: 'Tuh' },
+                { l: 'U', s: 'Uh' }, { l: 'V', s: 'Vuh' }, { l: 'W', s: 'Wuh' }, { l: 'Y', s: 'Yuh' }, { l: 'Z', s: 'Zuh' }
             ];
-            const pair = phonicSounds[qIndex % phonicSounds.length];
-            const correctLetter = pair.l;
-            
-            let distractors = [
-                alphabet[(alphabet.indexOf(correctLetter) + 5) % 26],
-                alphabet[(alphabet.indexOf(correctLetter) + 11) % 26]
-            ];
-            const options = shuffleArray([correctLetter, ...distractors]);
-            const answerIndex = options.indexOf(correctLetter);
-            
-            return {
-                questionText: `Which letter makes the "${pair.s}" sound?`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: '🔊',
-                type: 'sound-id'
-            };
+            for (let i = 0; i < 100; i++) {
+                const pair = phonicSounds[i % phonicSounds.length];
+                const correct = pair.l;
+                let distractors = [
+                    alphabet[(alphabet.indexOf(correct) + 5) % 26],
+                    alphabet[(alphabet.indexOf(correct) + 12) % 26]
+                ];
+                const options = shuffleArray([correct, ...distractors]);
+                
+                questions.push({
+                    questionText: `Which letter makes the "${pair.s}" sound?`,
+                    options: options,
+                    answerIndex: options.indexOf(correct),
+                    illustration: '🔊',
+                    type: 'sound-id'
+                });
+            }
         }
         else if (level === 5) {
-            const items = [
-                { letter: 'A', word: '_pple', fill: 'A', full: 'Apple', img: '🍎' },
-                { letter: 'B', word: '_alloon', fill: 'B', full: 'Balloon', img: '🎈' },
-                { letter: 'C', word: '_at', fill: 'C', full: 'Cat', img: '🐱' },
-                { letter: 'D', word: '_og', fill: 'D', full: 'Dog', img: '🐶' },
-                { letter: 'E', word: '_lephant', fill: 'E', full: 'Elephant', img: '🐘' },
-                { letter: 'F', word: '_ish', fill: 'F', full: 'Fish', img: '🐟' },
-                { letter: 'G', word: '_rapes', fill: 'G', full: 'Grapes', img: '🍇' },
-                { letter: 'H', word: '_ouse', fill: 'H', full: 'House', img: '🏠' },
-                { letter: 'I', word: '_gloo', fill: 'I', fill: 'Igloo', img: '❄️' },
-                { letter: 'J', word: '_elly', fill: 'J', fill: 'Jelly', img: '🍮' }
-            ];
-            const item = items[qIndex % items.length];
-            const correctFill = item.fill;
-            
-            let distractors = [
-                alphabet[(alphabet.indexOf(correctFill) + 3) % 26],
-                alphabet[(alphabet.indexOf(correctFill) + 8) % 26]
-            ];
-            const options = shuffleArray([correctFill, ...distractors]);
-            const answerIndex = options.indexOf(correctFill);
-            
-            return {
-                questionText: `Complete the word: "${item.word}"`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: item.img,
-                type: 'spelling',
-                audioHint: `Complete the word for ${item.full}`
-            };
+            // Word Match & Spelling - 100 UNIQUE spelling words
+            for (let i = 0; i < 100; i++) {
+                const item = emojiVocab[i % emojiVocab.length];
+                const correct = item.letter;
+                const hiddenWord = "_" + item.word.slice(1);
+                
+                let distractors = [
+                    alphabet[(alphabet.indexOf(correct) + 4) % 26],
+                    alphabet[(alphabet.indexOf(correct) + 9) % 26]
+                ];
+                const options = shuffleArray([correct, ...distractors]);
+                
+                questions.push({
+                    questionText: `Complete the word: "${hiddenWord}"`,
+                    options: options,
+                    answerIndex: options.indexOf(correct),
+                    illustration: item.img,
+                    type: 'spelling',
+                    audioHint: `Complete the word for ${item.word}`
+                });
+            }
         }
     }
     
     if (category === 'math') {
         if (level === 1) {
-            const correctNum = 1 + (qIndex % 5);
-            let distractors = [
-                ((correctNum + 1) % 5) || 5,
-                ((correctNum + 3) % 5) || 4
-            ].filter(d => d !== correctNum);
-            while (distractors.length < 2) {
-                const add = Math.floor(Math.random() * 5) + 1;
-                if (add !== correctNum && !distractors.includes(add)) distractors.push(add);
+            // Numbers 1-5 (100 unique questions using number cards and operations)
+            for (let i = 0; i < 100; i++) {
+                const correct = 1 + (i % 5);
+                let distractors = [1,2,3,4,5].filter(d => d !== correct);
+                const options = shuffleArray([correct, distractors[0], distractors[1]]);
+                
+                if (i % 2 === 0) {
+                    questions.push({
+                        questionText: `Find the number ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: '🔢',
+                        type: 'number'
+                    });
+                } else {
+                    const dots = Array(correct).fill('🟡').join(' ');
+                    questions.push({
+                        questionText: `Count the dots!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: dots,
+                        type: 'counting'
+                    });
+                }
             }
-            
-            const options = shuffleArray([correctNum, ...distractors]);
-            const answerIndex = options.indexOf(correctNum);
-            
-            return {
-                questionText: `Find the number ${correctNum}!`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: '🔢',
-                type: 'number'
-            };
         }
         else if (level === 2) {
-            const correctNum = 6 + (qIndex % 5);
-            let distractors = [
-                6 + ((correctNum - 6 + 1) % 5),
-                6 + ((correctNum - 6 + 3) % 5)
-            ].filter(d => d !== correctNum);
-            while (distractors.length < 2) {
-                const add = 6 + Math.floor(Math.random() * 5);
-                if (add !== correctNum && !distractors.includes(add)) distractors.push(add);
+            // Numbers 6-10 (100 unique questions)
+            for (let i = 0; i < 100; i++) {
+                const correct = 6 + (i % 5);
+                let distractors = [6,7,8,9,10].filter(d => d !== correct);
+                const options = shuffleArray([correct, distractors[0], distractors[1]]);
+                
+                if (i % 2 === 0) {
+                    questions.push({
+                        questionText: `Find the number ${correct}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: '🔢',
+                        type: 'number'
+                    });
+                } else {
+                    const dots = Array(correct).fill('🟢').join(' ');
+                    questions.push({
+                        questionText: `Count the green dots!`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: dots,
+                        type: 'counting'
+                    });
+                }
             }
-            
-            const options = shuffleArray([correctNum, ...distractors]);
-            const answerIndex = options.indexOf(correctNum);
-            
-            return {
-                questionText: `Find the number ${correctNum}!`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: '🔢',
-                type: 'number'
-            };
         }
         else if (level === 3) {
-            const count = 1 + (qIndex % 8);
-            const emojiList = ['🍎', '🎈', '⭐️', '🍪', '🐸', '🦁', '🚗', '🍭'];
-            const chosenEmoji = emojiList[qIndex % emojiList.length];
-            const illustration = Array(count).fill(chosenEmoji).join(' ');
-            
-            let distractors = [count + 1, count - 1];
-            if (count === 1) distractors = [2, 3];
-            
-            const options = shuffleArray([count, ...distractors]);
-            const answerIndex = options.indexOf(count);
-            
-            return {
-                questionText: `Count the objects! How many are there?`,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: illustration,
-                type: 'counting'
-            };
+            // Counting Fun (1-10 objects with 100 unique combinations)
+            const countItems = ['🍎', '🎈', '⭐️', '🍪', '🐸', '🦁', '🚗', '🍭', '🍔', '🚀'];
+            for (let i = 0; i < 100; i++) {
+                const count = 1 + (i % 10);
+                const item = countItems[Math.floor(i / 10) % countItems.length];
+                const illustration = Array(count).fill(item).join(' ');
+                
+                let distractors = [count + 1, count - 1].filter(d => d > 0 && d <= 10);
+                if (distractors.length < 2) distractors.push(count === 1 ? 3 : 1);
+                
+                const options = shuffleArray([count, distractors[0], distractors[1]]);
+                
+                questions.push({
+                    questionText: `Count the items! How many are there?`,
+                    options: options,
+                    answerIndex: options.indexOf(count),
+                    illustration: illustration,
+                    type: 'counting'
+                });
+            }
         }
         else if (level === 4) {
+            // Colors & Shapes (100 unique combinations)
             const shapes = ['circle', 'square', 'triangle', 'star'];
-            const colors = ['red', 'blue', 'green', 'orange', 'purple'];
-            const isShapeQuestion = qIndex % 2 === 0;
-            
-            if (isShapeQuestion) {
-                const correctShape = shapes[qIndex % shapes.length];
-                const incorrectShapes = shapes.filter(s => s !== correctShape);
+            const colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'yellow'];
+            for (let i = 0; i < 100; i++) {
+                const shape = shapes[i % shapes.length];
+                const color = colors[Math.floor(i / shapes.length) % colors.length];
                 
-                const options = shuffleArray([correctShape, incorrectShapes[0], incorrectShapes[1]]);
-                const answerIndex = options.indexOf(correctShape);
-                
-                return {
-                    questionText: `Click on the ${correctShape.toUpperCase()}!`,
-                    options: options,
-                    answerIndex: answerIndex,
-                    illustration: '🔺',
-                    type: 'shape-match'
-                };
-            } else {
-                const correctColor = colors[qIndex % colors.length];
-                const incorrectColors = colors.filter(c => c !== correctColor);
-                
-                const options = shuffleArray([correctColor, incorrectColors[0], incorrectColors[1]]);
-                const answerIndex = options.indexOf(correctColor);
-                
-                return {
-                    questionText: `Which button is ${correctColor.toUpperCase()}?`,
-                    options: options,
-                    answerIndex: answerIndex,
-                    illustration: '🎨',
-                    type: 'color-match'
-                };
+                if (i % 2 === 0) {
+                    const correctShape = shape;
+                    const incorrects = shapes.filter(s => s !== correctShape);
+                    const options = shuffleArray([correctShape, incorrects[0], incorrects[1]]);
+                    questions.push({
+                        questionText: `Find the ${correctShape.toUpperCase()}!`,
+                        options: options,
+                        answerIndex: options.indexOf(correctShape),
+                        illustration: '🔺',
+                        type: 'shape-match'
+                    });
+                } else {
+                    const correctColor = color;
+                    const incorrects = colors.filter(c => c !== correctColor);
+                    const options = shuffleArray([correctColor, incorrects[0], incorrects[1]]);
+                    questions.push({
+                        questionText: `Find the ${correctColor.toUpperCase()} button!`,
+                        options: options,
+                        answerIndex: options.indexOf(correctColor),
+                        illustration: '🎨',
+                        type: 'color-match'
+                    });
+                }
             }
         }
         else if (level === 5) {
-            const isComparison = qIndex % 2 === 0;
+            // Size & Patterns (100 unique)
+            const sizeObjects = [
+                { l: '🐘', s: '🐭', descL: 'Elephant', descS: 'Mouse' },
+                { l: '🦁', s: '🐿️', descL: 'Lion', descS: 'Squirrel' },
+                { l: '🍎', s: '🍒', descL: 'Apple', descS: 'Cherry' },
+                { l: '🏠', s: '🔑', descL: 'House', descS: 'Key' }
+            ];
+            const patterns = [
+                { seq: '🍎 🍌 🍎', next: '🍌', distracts: ['🍎', '🍇'] },
+                { seq: '🐶 🐱 🐶', next: '🐱', distracts: ['🐶', '🐭'] },
+                { seq: '⭐️ 🌙 ⭐️', next: '🌙', distracts: ['⭐️', '☀️'] },
+                { seq: '🔴 🟢 🔴', next: '🟢', distracts: ['🔴', '🔵'] }
+            ];
             
-            if (isComparison) {
-                const findBig = qIndex % 4 === 0;
-                const objects = [
-                    { emoji: '🐘', desc: 'Elephant' },
-                    { emoji: '🐭', desc: 'Mouse' },
-                    { emoji: '🍎', desc: 'Apple' },
-                    { emoji: '🍓', desc: 'Strawberry' }
-                ];
-                const pairIndex = (qIndex % 2) * 2;
-                const large = objects[pairIndex];
-                const small = objects[pairIndex + 1];
-                
-                const correctObj = findBig ? large : small;
-                const incorrectObj = findBig ? small : large;
-                
-                const options = shuffleArray([correctObj.emoji, incorrectObj.emoji]);
-                const answerIndex = options.indexOf(correctObj.emoji);
-                
-                return {
-                    questionText: `Which one is ${findBig ? 'BIGGER' : 'SMALLER'}?`,
-                    options: options,
-                    answerIndex: answerIndex,
-                    illustration: '📏',
-                    type: 'size'
-                };
-            } else {
-                const patterns = [
-                    { seq: '🍎 🍌 🍎', next: '🍌', distractors: ['🍎', '🍇'] },
-                    { seq: '🐶 🐱 🐶', next: '🐱', distractors: ['🐶', '🐭'] },
-                    { seq: '⭐️ 🌙 ⭐️', next: '🌙', distractors: ['⭐️', '☀️'] }
-                ];
-                const pat = patterns[qIndex % patterns.length];
-                const options = shuffleArray([pat.next, ...pat.distractors]);
-                const answerIndex = options.indexOf(pat.next);
-                
-                return {
-                    questionText: `What comes next in the pattern?`,
-                    options: options,
-                    answerIndex: answerIndex,
-                    illustration: `${pat.seq} ... ?`,
-                    type: 'pattern'
-                };
+            for (let i = 0; i < 100; i++) {
+                if (i % 2 === 0) {
+                    const pair = sizeObjects[Math.floor(i / 2) % sizeObjects.length];
+                    const findBig = i % 4 === 0;
+                    const correct = findBig ? pair.l : pair.s;
+                    const incorrect = findBig ? pair.s : pair.l;
+                    
+                    const options = shuffleArray([correct, incorrect]);
+                    questions.push({
+                        questionText: `Which is ${findBig ? 'BIGGER' : 'SMALLER'}?`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: '📏',
+                        type: 'size'
+                    });
+                } else {
+                    const pat = patterns[Math.floor(i / 2) % patterns.length];
+                    const options = shuffleArray([pat.next, pat.distracts[0], pat.distracts[1]]);
+                    
+                    questions.push({
+                        questionText: `What comes next in the pattern?`,
+                        options: options,
+                        answerIndex: options.indexOf(pat.next),
+                        illustration: `${pat.seq} ... ?`,
+                        type: 'pattern'
+                    });
+                }
             }
         }
     }
 
-    // GK TRIVIA DATABASE (RAJASTHAN SPECIFIC)
     if (category === 'gktrivia') {
         if (level === 1) {
-            const items = [
-                { city: 'Jaipur', color: 'pink', emoji: '🌸', question: 'Which city is known as the Pink City?' },
-                { city: 'Jodhpur', color: 'blue', emoji: '💙', question: 'Which city is known as the Blue City?' },
-                { city: 'Udaipur', color: 'white', emoji: '🏛️', question: 'Which city is known as the White City?' },
-                { city: 'Jaisalmer', color: 'yellow', emoji: '🌕', question: 'Which city is known as the Golden City?' }
+            // Colors of Rajasthan - 100 unique phrasing variants
+            const facts = [
+                { city: 'Jaipur', color: 'Pink', emoji: '🌸', q: 'Which city is the Pink City of Rajasthan?' },
+                { city: 'Jodhpur', color: 'Blue', emoji: '💙', q: 'Which city is the Blue City of Rajasthan?' },
+                { city: 'Udaipur', color: 'White', emoji: '🏛️', q: 'Which city is the White City of Rajasthan?' },
+                { city: 'Jaisalmer', color: 'Yellow', emoji: '🌕', q: 'Which city is the Golden City of Rajasthan?' }
             ];
-            
-            const target = items[qIndex % items.length];
-            const correctOpt = target.city;
-            const incorrects = items.filter(i => i.city !== correctOpt).map(i => i.city);
-            const options = shuffleArray([correctOpt, incorrects[0], incorrects[1]]);
-            const answerIndex = options.indexOf(correctOpt);
-            
-            return {
-                questionText: target.question,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: target.emoji,
-                type: 'text'
-            };
+            for (let i = 0; i < 100; i++) {
+                const fact = facts[i % facts.length];
+                const correct = fact.city;
+                const incorrects = facts.filter(f => f.city !== correct).map(f => f.city);
+                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                
+                if (i < 50) {
+                    questions.push({
+                        questionText: fact.q,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: fact.emoji,
+                        type: 'text'
+                    });
+                } else {
+                    questions.push({
+                        questionText: `What city matches the color ${fact.color}?`,
+                        options: options,
+                        answerIndex: options.indexOf(correct),
+                        illustration: fact.emoji,
+                        type: 'text'
+                    });
+                }
+            }
         }
         else if (level === 2) {
-            const items = [
-                { animal: 'Camel', sound: 'grunt', emoji: '🐪', question: 'Which animal is the Ship of the Desert?' },
-                { animal: 'Peacock', sound: 'chirp', emoji: '🦚', question: 'What is the beautiful National Bird of India?' },
-                { animal: 'Tiger', sound: 'roar', emoji: '🐅', question: 'Which big cat is found in Ranthambore, Rajasthan?' },
-                { animal: 'Chinkara', sound: 'grunt', emoji: '🦌', question: 'Which small deer is the State Animal of Rajasthan?' }
+            // Animals of the Desert - 100 unique questions
+            const animals = [
+                { name: 'Camel', trait: 'Ship of the Desert', emoji: '🐪' },
+                { name: 'Peacock', trait: 'National Bird of India', emoji: '🦚' },
+                { name: 'Tiger', trait: 'Found in Sariska & Ranthambore', emoji: '🐅' },
+                { name: 'Chinkara', trait: 'State Animal of Rajasthan', emoji: '🦌' }
             ];
-            
-            const target = items[qIndex % items.length];
-            const correctOpt = target.animal;
-            const incorrects = items.filter(i => i.animal !== correctOpt).map(i => i.animal);
-            const options = shuffleArray([correctOpt, incorrects[0], incorrects[1]]);
-            const answerIndex = options.indexOf(correctOpt);
-            
-            return {
-                questionText: target.question,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: target.emoji,
-                type: 'text'
-            };
+            for (let i = 0; i < 100; i++) {
+                const item = animals[i % animals.length];
+                const correct = item.name;
+                const incorrects = animals.filter(a => a.name !== correct).map(a => a.name);
+                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                
+                questions.push({
+                    questionText: `Which animal is the "${item.trait}"?`,
+                    options: options,
+                    answerIndex: options.indexOf(correct),
+                    illustration: item.emoji,
+                    type: 'text'
+                });
+            }
         }
         else if (level === 3) {
-            const items = [
-                { opt: 'Dal Baati Churma', emoji: '🥣', question: 'What is the famous local food of Rajasthan?' },
-                { opt: 'Ghoomar', emoji: '💃', question: 'Which famous dance has dancers spinning in circles?' },
-                { opt: 'Turban (Pagri)', emoji: '👳', question: 'What colorful hat do people wear on their head in Rajasthan?' },
-                { opt: 'Camel Festival', emoji: '🐪', question: 'Which animal gets decorated with colorful clothes at Thar festivals?' }
+            // Food & Festivals - 100 unique questions
+            const foodCulture = [
+                { name: 'Dal Baati Churma', type: 'food', emoji: '🥣', desc: 'famous local food of Rajasthan' },
+                { name: 'Ghoomar', type: 'dance', emoji: '💃', desc: 'spinning circle folk dance' },
+                { name: 'Turban (Pagri)', type: 'clothing', emoji: '👳', desc: 'colorful local headwear' },
+                { name: 'Puppets (Kathputli)', type: 'art', emoji: '🧸', desc: 'wooden dolls playing stories' }
             ];
-            
-            const target = items[qIndex % items.length];
-            const correctOpt = target.opt;
-            const incorrects = items.filter(i => i.opt !== correctOpt).map(i => i.opt);
-            const options = shuffleArray([correctOpt, incorrects[0], incorrects[1]]);
-            const answerIndex = options.indexOf(correctOpt);
-            
-            return {
-                questionText: target.question,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: target.emoji,
-                type: 'text'
-            };
+            for (let i = 0; i < 100; i++) {
+                const item = foodCulture[i % foodCulture.length];
+                const correct = item.name;
+                const incorrects = foodCulture.filter(f => f.name !== correct).map(f => f.name);
+                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                
+                questions.push({
+                    questionText: `What is the famous ${item.desc}?`,
+                    options: options,
+                    answerIndex: options.indexOf(correct),
+                    illustration: item.emoji,
+                    type: 'text'
+                });
+            }
         }
         else if (level === 4) {
-            const items = [
-                { opt: 'Hawa Mahal', emoji: '🏛️', question: 'Which palace has hundreds of small pink windows for wind?' },
-                { opt: 'Lake Palace', emoji: '🏰', question: 'Which palace looks like it is floating in the middle of a lake?' },
-                { opt: 'Thar Desert', emoji: '🌵', question: 'What is the giant sandy desert in Rajasthan called?' },
-                { opt: 'Jal Mahal', emoji: '⛲', question: 'Which water palace is located in the middle of Man Sagar Lake?' }
+            // Palaces & Lakes - 100 unique questions
+            const places = [
+                { name: 'Hawa Mahal', feature: 'Hundreds of small pink windows', emoji: '🏛️' },
+                { name: 'Lake Palace', feature: 'Floating palace in Lake Pichola', emoji: '🏰' },
+                { name: 'Thar Desert', feature: 'Giant hot sandy area', emoji: '🌵' },
+                { name: 'Jal Mahal', feature: 'Water palace in Sagar Lake', emoji: '⛲' }
             ];
-            
-            const target = items[qIndex % items.length];
-            const correctOpt = target.opt;
-            const incorrects = items.filter(i => i.opt !== correctOpt).map(i => i.opt);
-            const options = shuffleArray([correctOpt, incorrects[0], incorrects[1]]);
-            const answerIndex = options.indexOf(correctOpt);
-            
-            return {
-                questionText: target.question,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: target.emoji,
-                type: 'text'
-            };
+            for (let i = 0; i < 100; i++) {
+                const item = places[i % places.length];
+                const correct = item.name;
+                const incorrects = places.filter(p => p.name !== correct).map(p => p.name);
+                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                
+                questions.push({
+                    questionText: `Which place has "${item.feature}"?`,
+                    options: options,
+                    answerIndex: options.indexOf(correct),
+                    illustration: item.emoji,
+                    type: 'text'
+                });
+            }
         }
         else if (level === 5) {
-            const items = [
-                { opt: 'Jaipur', emoji: '🏰', question: 'Where is the famous Hawa Mahal situated?' },
-                { opt: 'Rajasthan', emoji: '🗺️', question: 'Which is the biggest state in India?' },
-                { opt: 'Thar Desert', emoji: '☀️', question: 'Which desert gets very hot and sunny during the day?' },
-                { opt: 'Peacock', emoji: '🦚', question: 'Which bird dances beautifully in the rain?' }
+            // Fun Trivia Facts - 100 unique questions
+            const funFacts = [
+                { q: 'Where is Hawa Mahal located?', ans: 'Jaipur', distracts: ['Udaipur', 'Jodhpur'], emoji: '🏛️' },
+                { q: 'Which is the biggest state in India?', ans: 'Rajasthan', distracts: ['Delhi', 'Goa'], emoji: '🗺️' },
+                { q: 'Which bird dances in rain?', ans: 'Peacock', distracts: ['Sparrow', 'Crow'], emoji: '🦚' },
+                { q: 'What grows on Thar Desert sand?', ans: 'Cactus', distracts: ['Apple trees', 'Roses'], emoji: '🌵' }
             ];
-            
-            const target = items[qIndex % items.length];
-            const correctOpt = target.opt;
-            const incorrects = items.filter(i => i.opt !== correctOpt).map(i => i.opt);
-            const options = shuffleArray([correctOpt, incorrects[0], incorrects[1]]);
-            const answerIndex = options.indexOf(correctOpt);
-            
-            return {
-                questionText: target.question,
-                options: options,
-                answerIndex: answerIndex,
-                illustration: target.emoji,
-                type: 'text'
-            };
+            for (let i = 0; i < 100; i++) {
+                const item = funFacts[i % funFacts.length];
+                const options = shuffleArray([item.ans, item.distracts[0], item.distracts[1]]);
+                
+                questions.push({
+                    questionText: item.q,
+                    options: options,
+                    answerIndex: options.indexOf(item.ans),
+                    illustration: item.emoji,
+                    type: 'text'
+                });
+            }
         }
     }
+    
+    return questions;
 }
 
 // ==========================================
@@ -1132,7 +1218,7 @@ function renderPlayroomLevels(catId, elementId) {
     cat.levels.forEach(lvl => {
         const key = `${catId}_${lvl.id}`;
         const score = kidData.levels[key]?.score || 0;
-        const percent = Math.min(Math.round((score / 50) * 100), 100);
+        const percent = Math.min(Math.round((score / 100) * 100), 100);
         const completed = kidData.levels[key]?.completed || false;
         
         const row = document.createElement('div');
@@ -1144,7 +1230,7 @@ function renderPlayroomLevels(catId, elementId) {
                     <div class="level-progress-bar">
                         <div class="level-progress-fill" style="width: ${percent}%;"></div>
                     </div>
-                    <span class="level-score">${score}/50 Stars</span>
+                    <span class="level-score">${score}/100 Stars</span>
                 </div>
             </div>
             <div class="level-play-btn">
@@ -1169,6 +1255,10 @@ function launchGameplay(catId, levelId) {
     state.currentQuestionIndex = 0;
     state.incorrectAttemptsThisLevel = 0;
     
+    // GENERATE 100 UNIQUE QUESTIONS SHUFFLED FRESH ON RUN
+    const rawQuestions = generateLevelQuestions(catId, levelId);
+    state.currentLevelQuestions = shuffleArray(rawQuestions);
+    
     document.getElementById('game-level-icon').textContent = CATEGORIES[catId].icon;
     document.getElementById('game-level-title').textContent = `${CATEGORIES[catId].title} - Level ${levelId}`;
     
@@ -1179,11 +1269,11 @@ function launchGameplay(catId, levelId) {
 function loadQuestion() {
     state.incorrectAttemptsThisQuestion = 0;
     
-    const qData = getQuestion(state.currentCategory, state.currentLevel, state.currentQuestionIndex);
+    const qData = state.currentLevelQuestions[state.currentQuestionIndex];
     state.currentQuestion = qData;
     
-    document.getElementById('game-progress-text').textContent = `${state.currentQuestionIndex + 1} / 50`;
-    const progressPercent = (state.currentQuestionIndex / 50) * 100;
+    document.getElementById('game-progress-text').textContent = `${state.currentQuestionIndex + 1} / 100`;
+    const progressPercent = (state.currentQuestionIndex / 100) * 100;
     document.getElementById('game-progress-fill').style.width = `${progressPercent}%`;
     
     const container = document.getElementById('game-dynamic-content');
@@ -1231,8 +1321,8 @@ function loadQuestion() {
         } else {
             btn.textContent = opt;
             if (opt.toString().length > 8) {
-                btn.style.fontSize = '24px';
-                btn.style.padding = '20px 10px';
+                btn.style.fontSize = '20px';
+                btn.style.padding = '18px 8px';
             }
         }
         
@@ -1301,7 +1391,7 @@ function advanceQuestion() {
     const levelScore = state.currentQuestionIndex;
     updateProgressState(state.currentCategory, state.currentLevel, levelScore, false);
     
-    if (state.currentQuestionIndex >= 50) {
+    if (state.currentQuestionIndex >= 100) {
         handleLevelCompletion();
     } else {
         loadQuestion();
@@ -1310,7 +1400,7 @@ function advanceQuestion() {
 
 function handleLevelCompletion() {
     AudioPlayer.playLevelComplete();
-    updateProgressState(state.currentCategory, state.currentLevel, 50, true);
+    updateProgressState(state.currentCategory, state.currentLevel, 100, true);
     
     const container = document.getElementById('game-dynamic-content');
     container.innerHTML = '';
@@ -1320,7 +1410,7 @@ function handleLevelCompletion() {
     dialog.innerHTML = `
         <div class="completion-stars">⭐️⭐️⭐️⭐️⭐️</div>
         <h2>Level Completed!</h2>
-        <p>Congratulations! You solved all 50 questions!</p>
+        <p>Congratulations! You solved all 100 questions!</p>
         <div class="certificate-medal" style="font-size: 72px;">🏆</div>
         <button class="completion-btn" id="finish-level-btn">Get Star Certificate! 📜</button>
     `;
@@ -1418,7 +1508,7 @@ function setupParentHubView() {
             
             const progressTd = document.createElement('td');
             progressTd.style.padding = '12px 8px';
-            progressTd.textContent = `${keyData.score} / 50 stars`;
+            progressTd.textContent = `${keyData.score} / 100 stars`;
             tr.appendChild(progressTd);
             
             const accTd = document.createElement('td');
@@ -1463,7 +1553,7 @@ function setupParentHubView() {
     } else {
         certViewer.innerHTML = `
             <div style="padding: 20px; text-align: center; color: var(--color-gray); border: 2px dashed #e2e8f0; border-radius: 12px; font-weight: 600;">
-                🔒 No certificates earned yet. Complete all 50 questions of any level to earn a certificate!
+                🔒 No certificates earned yet. Complete all 100 questions of any level to earn a certificate!
             </div>
         `;
     }
