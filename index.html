@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aarti Ma'am - Fun Learning!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-leo">
+
+    <!-- Confetti Canvas for Celebrating Success -->
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+    <!-- Header Navigation -->
+    <header id="app-header">
+        <div class="logo" id="header-logo">
+            <span>✨</span> Aarti Ma'am
+        </div>
+        <div class="nav-links">
+            <!-- Main Navigation Pills (Matches user screenshot) -->
+            <div class="main-nav-pills" id="header-nav-pills" style="display: none;">
+                <button class="nav-pill" id="pill-gktrivia">
+                    <span class="pill-dot" style="background: #a855f7;"></span>🧠 GK Trivia
+                </button>
+                <button class="nav-pill" id="pill-playroom">
+                    <span class="pill-dot" style="background: #22c55e;"></span>📍 Playroom
+                </button>
+                <button class="nav-pill" id="pill-parent">
+                    <span class="pill-dot" style="background: #3b82f6;"></span>📊 Parent Hub
+                </button>
+            </div>
+            
+            <div class="user-profile-badge" id="header-profile" style="display: none;">
+                <div class="avatar-circle" id="header-avatar">🦁</div>
+                <span id="header-username" style="font-weight: 700;">Jinay</span>
+            </div>
+            <button class="nav-btn logout-btn" id="header-logout-btn" style="display: none;">
+                🚪 Log Out
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Screen Views -->
+    <main>
+        
+        <!-- 1. LOGIN SCREEN -->
+        <section id="view-login" class="view-section active">
+            <div class="login-card">
+                <div class="login-illustration float-anim">✨</div>
+                <h1 class="login-title">Select Your Profile</h1>
+                
+                <!-- Kids Avatar Selection (Jinay, Kiaan, Kiara, Kayra, Kinaya) -->
+                <div class="login-profiles-grid">
+                    <div class="login-profile-select selected" data-username="jinay" data-avatar="🦁">
+                        <span class="avatar">🦁</span>
+                        <span class="name">Jinay</span>
+                    </div>
+                    <div class="login-profile-select" data-username="kiaan" data-avatar="🐵">
+                        <span class="avatar">🐵</span>
+                        <span class="name">Kiaan</span>
+                    </div>
+                    <div class="login-profile-select" data-username="kiara" data-avatar="🐿️">
+                        <span class="avatar">🐿️</span>
+                        <span class="name">Kiara</span>
+                    </div>
+                    <div class="login-profile-select" data-username="kayra" data-avatar="🐘">
+                        <span class="avatar">🐘</span>
+                        <span class="name">Kayra</span>
+                    </div>
+                    <div class="login-profile-select" data-username="kinaya" data-avatar="🦉">
+                        <span class="avatar">🦉</span>
+                        <span class="name">Kinaya</span>
+                    </div>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-password">Enter Your Password:</label>
+                        <input type="password" id="login-password" class="form-input" placeholder="Type password..." required autocomplete="off">
+                    </div>
+                    <button type="submit" class="login-btn">Start Adventure 🚀</button>
+                </form>
+
+                <div class="login-tip">
+                    🔑 Password: <strong>jinay</strong> is <strong>j1</strong>, others are <strong>k2</strong>, <strong>k3</strong>, <strong>k4</strong>, <strong>k5</strong>
+                </div>
+
+                <div style="margin-top: 25px; font-weight: 700; color: #a855f7; font-size: 15px; letter-spacing: 0.5px;">
+                    Made with Sparkles by Aarti ✨🪄
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. GK TRIVIA SCREEN -->
+        <section id="view-gktrivia" class="view-section">
+            <div class="welcome-banner" style="background: linear-gradient(135deg, #f3e8ff, #faf5ff);">
+                <div class="welcome-info">
+                    <h2>GK Trivia Quest! 🧠</h2>
+                    <p>Explore Rajasthan, colors, and palaces with Aarti Ma'am!</p>
+                </div>
+                <div class="login-illustration" style="font-size: 64px;">🐪</div>
+            </div>
+
+            <div class="categories-container" style="grid-template-columns: 1fr;">
+                <div class="category-card" style="border-color: #d8b4fe;">
+                    <div class="category-header" style="background: linear-gradient(135deg, #a855f7, #c084fc);">
+                        <span class="icon">🐪</span>
+                        <h3>Rajasthan & India Wonders</h3>
+                    </div>
+                    <div class="category-body" id="gk-levels-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        <!-- GK levels loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. KIDS PLAYROOM SCREEN -->
+        <section id="view-playroom" class="view-section">
+            <div class="welcome-banner">
+                <div class="welcome-info">
+                    <h2>Hello, <span id="playroom-kid-name">Jinay</span>! <span id="playroom-kid-emoji">🦁</span></h2>
+                    <p>Ready to learn with Aarti Ma'am? ✨</p>
+                </div>
+                <div class="login-illustration" style="font-size: 64px;">🌟</div>
+            </div>
+
+            <div class="categories-container">
+                <!-- Phonics & Words -->
+                <div class="category-card">
+                    <div class="category-header" style="background: linear-gradient(135deg, var(--color-purple), var(--theme-color-primary));">
+                        <span class="icon">🍎</span>
+                        <h3>Reading & Phonics</h3>
+                    </div>
+                    <div class="category-body" id="phonics-levels-list">
+                        <!-- Level list items dynamically loaded -->
+                    </div>
+                </div>
+
+                <!-- Math & Logic -->
+                <div class="category-card">
+                    <div class="category-header" style="background: linear-gradient(135deg, var(--color-orange), var(--theme-color-primary));">
+                        <span class="icon">🔢</span>
+                        <h3>Math & Colors</h3>
+                    </div>
+                    <div class="category-body" id="math-levels-list">
+                        <!-- Level list items dynamically loaded -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Footer Branding -->
+            <div style="text-align: center; margin-top: 30px; font-weight: 700; color: #718096;">
+                Made with love by Aarti ✨
+            </div>
+        </section>
+
+        <!-- 4. GAMEPLAY SCREEN -->
+        <section id="view-gameplay" class="view-section">
+            <div class="game-container">
+                <div class="game-header">
+                    <button class="nav-btn" id="game-back-btn">🏡 Exit Game</button>
+                    <div class="game-title">
+                        <span id="game-level-icon">🍎</span>
+                        <span id="game-level-title">Letters Level 1</span>
+                    </div>
+                    <div class="game-progress">
+                        <span id="game-progress-text">1/50</span>
+                        <div class="game-progress-track">
+                            <div class="game-progress-fill" id="game-progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-content" id="game-dynamic-content">
+                    <!-- Questions & Options dynamically generated here -->
+                </div>
+                
+                <div style="text-align: center; padding: 10px; font-size: 13px; font-weight: 700; color: #a855f7; border-top: 1px solid #edf2f7; background: #faf5ff;">
+                    Aarti Ma'am Classroom ✨ Made by Aarti
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. PARENT HUB SCREEN -->
+        <section id="view-parent" class="view-section">
+            <div class="parent-header">
+                <div class="parent-title">
+                    <h2>📊 Parent Hub (<span id="parent-kid-name">Jinay</span>)</h2>
+                    <p>Track your child's progress, certificates, and daily screen usage.</p>
+                </div>
+                <button class="nav-btn primary" id="parent-back-btn">🏡 Exit to Playroom</button>
+            </div>
+
+            <div class="parent-grid">
+                <!-- Column 1: Analytics and Progress Details -->
+                <div class="parent-section-card">
+                    <h3>📈 Overall Performance</h3>
+                    <div class="stats-grid">
+                        <div class="stat-widget">
+                            <div class="val" id="parent-total-questions">0</div>
+                            <div class="lbl">Questions Solved</div>
+                        </div>
+                        <div class="stat-widget">
+                            <div class="val" id="parent-accuracy">0%</div>
+                            <div class="lbl">First-Attempt Accuracy</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 25px;">🏅 Level Completion Status</h3>
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #edf2f7; color: var(--color-gray);">
+                                <th style="padding: 12px 8px;">Activity / Level</th>
+                                <th style="padding: 12px 8px;">Questions Solved</th>
+                                <th style="padding: 12px 8px;">Accuracy</th>
+                                <th style="padding: 12px 8px;">Certificate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parent-levels-table-body">
+                            <!-- Dynamic rows representing all 15 levels -->
+                        </tbody>
+                    </table>
+
+                    <button class="nav-btn" id="parent-reset-btn" style="background: #fff5f5; color: #e53e3e; border: 2px solid #fed7d7; width: 100%; justify-content: center;">
+                        🗑️ Reset All Progress for this Child
+                    </button>
+                </div>
+
+                <!-- Column 2: Certificates, Usage logs & Activities -->
+                <div class="parent-section-card" style="display: flex; flex-direction: column; gap: 25px;">
+                    <div>
+                        <h3>📜 Latest Certificate</h3>
+                        <div class="certificate-preview-container" id="certificate-viewer">
+                            <!-- Injected dynamically if any level completed -->
+                        </div>
+                    </div>
+
+                    <!-- Screen-Time usage log (Tracked forever) -->
+                    <div>
+                        <h3>📅 Daily Usage Tracker (Forever)</h3>
+                        <div class="activity-list" id="parent-usage-list" style="max-height: 200px;">
+                            <!-- Injected dynamically per day (e.g. 2026-06-02: 4 mins 30 secs) -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>🕒 Recent Practice Sessions</h3>
+                        <div class="activity-list" id="parent-activity-list" style="max-height: 180px;">
+                            <!-- Activity list logs -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; font-weight: 700; color: #a855f7; font-size: 15px;">
+                Made with love by Aarti ✨
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global Sound / Text-to-Speech Control Widget -->
+    <div class="speech-control" id="tts-toggle" title="Read questions out loud">
+        <span id="tts-icon">🔊</span>
+        <span style="font-weight: 700; font-size: 14px;" id="tts-text">Voice On</span>
+    </div>
+
+    <!-- Parent Gating Verification Dialog Modal -->
+    <div class="modal-overlay" id="parent-gate-modal">
+        <div class="modal-card">
+            <h3>🔒 Parent Verification</h3>
+            <p>Please solve this simple puzzle to open the Parent Hub:</p>
+            <div class="modal-math-equation" id="parent-gate-math">8 + 5 = ?</div>
+            <div class="form-group">
+                <input type="number" id="parent-gate-input" class="form-input" placeholder="Your answer..." required autocomplete="off">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="parent-gate-cancel">Cancel</button>
+                <button class="modal-btn confirm" id="parent-gate-confirm">Unlock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Javascript -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
