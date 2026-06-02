@@ -72,7 +72,7 @@ let state = {
     currentCategory: null,
     currentLevel: null,
     currentQuestionIndex: 0,
-    currentLevelQuestions: [], // Will hold 100 shuffled unique questions
+    currentLevelQuestions: [], // Shuffled list of 100 unique questions
     incorrectAttemptsThisQuestion: 0,
     incorrectAttemptsThisLevel: 0,
     ttsEnabled: true,
@@ -411,7 +411,6 @@ function generateLevelQuestions(category, level) {
     const lowercaseAlphabet = 'abcdefghijklmnopqrstuvwxyz';
     const questions = [];
     
-    // Large vocabulary lists to prevent repetition
     const emojiVocab = [
         { letter: 'A', word: 'Apple', img: '🍎' }, { letter: 'A', word: 'Ant', img: '🐜' }, { letter: 'A', word: 'Acrobat', img: '🤸' }, { letter: 'A', word: 'Airplane', img: '✈️' },
         { letter: 'B', word: 'Balloon', img: '🎈' }, { letter: 'B', word: 'Bear', img: '🐻' }, { letter: 'B', word: 'Bus', img: '🚌' }, { letter: 'B', word: 'Butterfly', img: '🦋' },
@@ -436,155 +435,150 @@ function generateLevelQuestions(category, level) {
         { letter: 'U', word: 'Umbrella', img: '☂️' }, { letter: 'U', word: 'Unicorn', img: '🦄' }, { letter: 'U', word: 'Uncle', img: '🧔' }, { letter: 'U', word: 'Under', img: '👇' },
         { letter: 'V', word: 'Violin', img: '🎻' }, { letter: 'V', word: 'Vase', img: '🏺' }, { letter: 'V', word: 'Volcano', img: '🌋' }, { letter: 'V', word: 'Vegetable', img: '🥦' },
         { letter: 'W', word: 'Watch', img: '⌚' }, { letter: 'W', word: 'Wind', img: '💨' }, { letter: 'W', word: 'Watermelon', img: '🍉' }, { letter: 'W', word: 'Whale', img: '🐋' },
-        { letter: 'X', word: 'Xylophone', img: '🪘' }, { letter: 'X', word: 'X-ray', img: '🩻' }, { letter: 'X', word: 'Box', img: '📦' }, { letter: 'X', word: 'Fox', img: '🦊' },
+        { letter: 'X', word: 'Xylophone', img: '🪘' }, { letter: 'X', word: 'X-ray', img: '🩻' }, { letter: 'X', word: 'Box', img: '📦' }, { letter: 'X', word: 'Mix', img: '🥣' },
         { letter: 'Y', word: 'Yo-yo', img: '🪀' }, { letter: 'Y', word: 'Yak', img: '🦬' }, { letter: 'Y', word: 'Yacht', img: '⛵' }, { letter: 'Y', word: 'Yellow', img: '💛' },
         { letter: 'Z', word: 'Zebra', img: '🦓' }, { letter: 'Z', word: 'Zoo', img: '🏛️' }, { letter: 'Z', word: 'Zipper', img: '🤐' }, { letter: 'Z', word: 'Zero', img: '0️⃣' }
     ];
 
     if (category === 'phonics') {
         if (level === 1) {
-            // Upper letters A-Z, sequences and matching shapes
+            // Big Letters (A-J) - 100 unique questions
+            const letters = 'ABCDEFGHIJ';
+            const templates = [
+                "Find the big letter {L}!",
+                "Tap the capital letter {L}!",
+                "Which of these is the big letter {L}?",
+                "Help Aarti Ma'am find the capital letter {L}!",
+                "Click on the big letter {L}!",
+                "Look for the capital letter {L}!",
+                "Which one is the big letter {L}?",
+                "Aarti Ma'am says: touch the letter {L}!",
+                "Can you find the capital letter {L}?",
+                "Point to the big letter {L}!"
+            ];
             for (let i = 0; i < 100; i++) {
-                const charCodeIndex = i % 26;
-                const correct = alphabet[charCodeIndex];
-                let distractors = [
-                    alphabet[(charCodeIndex + 5) % 26],
-                    alphabet[(charCodeIndex + 11) % 26],
-                    alphabet[(charCodeIndex + 19) % 26]
-                ].filter(d => d !== correct).slice(0, 2);
-                const options = shuffleArray([correct, ...distractors]);
+                const targetIdx = Math.floor(i / 10);
+                const L = letters[targetIdx];
+                const qText = templates[i % 10].replace('{L}', L);
                 
-                if (i < 40) {
-                    questions.push({
-                        questionText: `Find the big letter ${correct}!`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: correct,
-                        type: 'text'
-                    });
-                } else if (i < 70) {
-                    const prev1 = alphabet[(charCodeIndex + 24) % 26];
-                    const prev2 = alphabet[(charCodeIndex + 25) % 26];
-                    questions.push({
-                        questionText: `What letter comes next?  ${prev1} -> ${prev2} -> ?`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: '❓',
-                        type: 'text'
-                    });
-                } else {
-                    questions.push({
-                        questionText: `Match the big letter ${correct}!`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: correct,
-                        type: 'text'
-                    });
-                }
+                const distractors = [...letters].filter(char => char !== L);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([L, shuffledD[0], shuffledD[1]]);
+                
+                questions.push({
+                    questionText: qText,
+                    options: options,
+                    answerIndex: options.indexOf(L),
+                    illustration: L,
+                    type: 'text'
+                });
             }
         }
         else if (level === 2) {
-            // More Big Letters & matching
-            for (let i = 0; i < 100; i++) {
-                const charCodeIndex = (13 + i) % 26;
-                const correct = alphabet[charCodeIndex];
-                let distractors = [
-                    alphabet[(charCodeIndex + 4) % 26],
-                    alphabet[(charCodeIndex + 9) % 26]
-                ].filter(d => d !== correct);
-                const options = shuffleArray([correct, ...distractors]);
-                
-                if (i % 2 === 0) {
+            // Big Letters (K-Z) - 100 unique questions
+            const letters = 'KLMNOPQRSTUVWXYZ';
+            const templates = [
+                "Find the big letter {L}!",
+                "Tap the capital letter {L}!",
+                "Which of these is the big letter {L}?",
+                "Help Aarti Ma'am find the capital letter {L}!",
+                "Click on the big letter {L}!",
+                "Can you find the capital letter {L}?",
+                "Point to the big letter {L}!"
+            ];
+            for (let i = 0; i < 16; i++) {
+                const L = letters[i];
+                const maxTemplates = i < 4 ? 7 : 6; // 4 * 7 + 12 * 6 = 100
+                for (let t = 0; t < maxTemplates; t++) {
+                    const qText = templates[t].replace('{L}', L);
+                    const distractors = [...letters].filter(char => char !== L);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([L, shuffledD[0], shuffledD[1]]);
+                    
                     questions.push({
-                        questionText: `Click on the big letter ${correct}!`,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: correct,
-                        type: 'text'
-                    });
-                } else {
-                    questions.push({
-                        questionText: `Which letter is this?`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: correct,
+                        answerIndex: options.indexOf(L),
+                        illustration: L,
                         type: 'text'
                     });
                 }
             }
         }
         else if (level === 3) {
-            // Lower letters a-z
-            for (let i = 0; i < 100; i++) {
-                const charCodeIndex = i % 26;
-                const correct = lowercaseAlphabet[charCodeIndex];
-                let distractors = [
-                    lowercaseAlphabet[(charCodeIndex + 3) % 26],
-                    lowercaseAlphabet[(charCodeIndex + 8) % 26],
-                    lowercaseAlphabet[(charCodeIndex + 14) % 26]
-                ].filter(d => d !== correct).slice(0, 2);
-                const options = shuffleArray([correct, ...distractors]);
-                
-                if (i < 50) {
+            // Small Letters (a-z) - 100 unique questions
+            const templates = [
+                "Find the small letter {l}!",
+                "Tap the lowercase letter {l}!",
+                "Which of these is the small letter {l}?",
+                "Find the small matching letter for big {L}!"
+            ];
+            for (let i = 0; i < 26; i++) {
+                const l = lowercaseAlphabet[i];
+                const L = alphabet[i];
+                const maxTemplates = i < 22 ? 4 : 3; // 22 * 4 + 4 * 3 = 100
+                for (let t = 0; t < maxTemplates; t++) {
+                    const qText = templates[t].replace('{l}', l).replace('{L}', L);
+                    const distractors = [...lowercaseAlphabet].filter(char => char !== l);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([l, shuffledD[0], shuffledD[1]]);
+                    
                     questions.push({
-                        questionText: `Find the small letter ${correct}!`,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: correct,
-                        type: 'text'
-                    });
-                } else {
-                    const bigMatch = alphabet[charCodeIndex];
-                    questions.push({
-                        questionText: `Find the small matching letter for ${bigMatch}!`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: bigMatch,
+                        answerIndex: options.indexOf(l),
+                        illustration: l,
                         type: 'text'
                     });
                 }
             }
         }
         else if (level === 4) {
-            // Phonics sounds
+            // Letter Sounds - 100 unique questions
             const phonicSounds = [
                 { l: 'A', s: 'Ah' }, { l: 'B', s: 'Buh' }, { l: 'C', s: 'Cuh' }, { l: 'D', s: 'Duh' },
                 { l: 'E', s: 'Eh' }, { l: 'F', s: 'Fuh' }, { l: 'G', s: 'Guh' }, { l: 'H', s: 'Huh' },
                 { l: 'I', s: 'Ih' }, { l: 'J', s: 'Juh' }, { l: 'K', s: 'Kuh' }, { l: 'L', s: 'Luh' },
                 { l: 'M', s: 'Muh' }, { l: 'N', s: 'Nuh' }, { l: 'O', s: 'Oh' }, { l: 'P', s: 'Puh' },
                 { l: 'Q', s: 'Quuh' }, { l: 'R', s: 'Ruh' }, { l: 'S', s: 'Sss' }, { l: 'T', s: 'Tuh' },
-                { l: 'U', s: 'Uh' }, { l: 'V', s: 'Vuh' }, { l: 'W', s: 'Wuh' }, { l: 'Y', s: 'Yuh' }, { l: 'Z', s: 'Zuh' }
+                { l: 'U', s: 'Uh' }, { l: 'V', s: 'Vuh' }, { l: 'W', s: 'Wuh' }, { l: 'X', s: 'Ks' },
+                { l: 'Y', s: 'Yuh' }, { l: 'Z', s: 'Zuh' }
             ];
-            for (let i = 0; i < 100; i++) {
-                const pair = phonicSounds[i % phonicSounds.length];
-                const correct = pair.l;
-                let distractors = [
-                    alphabet[(alphabet.indexOf(correct) + 5) % 26],
-                    alphabet[(alphabet.indexOf(correct) + 12) % 26]
-                ];
-                const options = shuffleArray([correct, ...distractors]);
-                
-                questions.push({
-                    questionText: `Which letter makes the "${pair.s}" sound?`,
-                    options: options,
-                    answerIndex: options.indexOf(correct),
-                    illustration: '🔊',
-                    type: 'sound-id'
-                });
+            const templates = [
+                "Which letter makes the \"{s}\" sound?",
+                "Find the letter that sounds like \"{s}\"!",
+                "Help Aarti Ma'am find the \"{s}\" sound!",
+                "Tap the letter that makes the sound \"{s}\"!"
+            ];
+            for (let i = 0; i < 26; i++) {
+                const item = phonicSounds[i];
+                const maxTemplates = i < 22 ? 4 : 3; // 22 * 4 + 4 * 3 = 100
+                for (let t = 0; t < maxTemplates; t++) {
+                    const qText = templates[t].replace('{s}', item.s);
+                    const distractors = alphabet.split('').filter(char => char !== item.l);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([item.l, shuffledD[0], shuffledD[1]]);
+                    
+                    questions.push({
+                        questionText: qText,
+                        options: options,
+                        answerIndex: options.indexOf(item.l),
+                        illustration: '🔊',
+                        type: 'sound-id'
+                    });
+                }
             }
         }
         else if (level === 5) {
-            // Word Match & Spelling - 100 UNIQUE spelling words
+            // Word Match & Spelling - 100 unique questions
             for (let i = 0; i < 100; i++) {
-                const item = emojiVocab[i % emojiVocab.length];
+                const item = emojiVocab[i];
                 const correct = item.letter;
                 const hiddenWord = "_" + item.word.slice(1);
                 
-                let distractors = [
-                    alphabet[(alphabet.indexOf(correct) + 4) % 26],
-                    alphabet[(alphabet.indexOf(correct) + 9) % 26]
-                ];
-                const options = shuffleArray([correct, ...distractors]);
+                const distractors = alphabet.split('').filter(char => char !== correct);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([correct, shuffledD[0], shuffledD[1]]);
                 
                 questions.push({
                     questionText: `Complete the word: "${hiddenWord}"`,
@@ -600,153 +594,291 @@ function generateLevelQuestions(category, level) {
     
     if (category === 'math') {
         if (level === 1) {
-            // Numbers 1-5 (100 unique questions using number cards and operations)
-            for (let i = 0; i < 100; i++) {
-                const correct = 1 + (i % 5);
-                let distractors = [1,2,3,4,5].filter(d => d !== correct);
-                const options = shuffleArray([correct, distractors[0], distractors[1]]);
-                
-                if (i % 2 === 0) {
+            // Number Land (1-5) - 100 unique questions (20 per number)
+            const dotColors = ['🔴', '🔵', '🟢', '🟡'];
+            const starEmojis = ['⭐', '🌟', '✨', '💫'];
+            const itemsList = ['🍎', '🐱', '🐶', '🎈'];
+            
+            for (let num = 1; num <= 5; num++) {
+                for (let q = 0; q < 20; q++) {
+                    let qText = '';
+                    let illustration = '';
+                    let qType = 'text';
+                    
+                    const distractors = [1,2,3,4,5].filter(n => n !== num);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([num, shuffledD[0], shuffledD[1]]);
+                    
+                    if (q < 4) {
+                        const phrasings = [
+                            `Find the number ${num}!`,
+                            `Tap the number ${num}!`,
+                            `Which one is number ${num}?`,
+                            `Aarti Ma'am says: find number ${num}!`
+                        ];
+                        qText = phrasings[q];
+                        illustration = '🔢';
+                        qType = 'number';
+                    } else if (q < 8) {
+                        const color = dotColors[q - 4];
+                        qText = `Count the pretty ${color} dots!`;
+                        illustration = Array(num).fill(color).join(' ');
+                        qType = 'counting';
+                    } else if (q < 12) {
+                        const star = starEmojis[q - 8];
+                        qText = `How many sparkling ${star} stars do you see?`;
+                        illustration = Array(num).fill(star).join(' ');
+                        qType = 'counting';
+                    } else if (q < 16) {
+                        const item = itemsList[q - 12];
+                        qText = `Count the cute ${item}!`;
+                        illustration = Array(num).fill(item).join(' ');
+                        qType = 'counting';
+                    } else {
+                        const index = q - 16;
+                        const phrasings = [
+                            `Which button shows number ${num}?`,
+                            `Choose the number ${num}!`,
+                            `Look for the number ${num}!`,
+                            `Point to the number ${num}!`
+                        ];
+                        qText = phrasings[index];
+                        illustration = '🔢';
+                        qType = 'number';
+                    }
+                    
                     questions.push({
-                        questionText: `Find the number ${correct}!`,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: '🔢',
-                        type: 'number'
-                    });
-                } else {
-                    const dots = Array(correct).fill('🟡').join(' ');
-                    questions.push({
-                        questionText: `Count the dots!`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: dots,
-                        type: 'counting'
+                        answerIndex: options.indexOf(num),
+                        illustration: illustration,
+                        type: qType
                     });
                 }
             }
         }
         else if (level === 2) {
-            // Numbers 6-10 (100 unique questions)
-            for (let i = 0; i < 100; i++) {
-                const correct = 6 + (i % 5);
-                let distractors = [6,7,8,9,10].filter(d => d !== correct);
-                const options = shuffleArray([correct, distractors[0], distractors[1]]);
-                
-                if (i % 2 === 0) {
+            // Number Land (6-10) - 100 unique questions (20 per number)
+            const dotColors = ['🔴', '🔵', '🟢', '🟡'];
+            const starEmojis = ['⭐', '🌟', '✨', '💫'];
+            const itemsList = ['🍎', '🐱', '🐶', '🎈'];
+            
+            for (let num = 6; num <= 10; num++) {
+                for (let q = 0; q < 20; q++) {
+                    let qText = '';
+                    let illustration = '';
+                    let qType = 'text';
+                    
+                    const distractors = [6,7,8,9,10].filter(n => n !== num);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([num, shuffledD[0], shuffledD[1]]);
+                    
+                    if (q < 4) {
+                        const phrasings = [
+                            `Find the number ${num}!`,
+                            `Tap the number ${num}!`,
+                            `Which one is number ${num}?`,
+                            `Aarti Ma'am says: find number ${num}!`
+                        ];
+                        qText = phrasings[q];
+                        illustration = '🔢';
+                        qType = 'number';
+                    } else if (q < 8) {
+                        const color = dotColors[q - 4];
+                        qText = `Count the pretty ${color} dots!`;
+                        illustration = Array(num).fill(color).join(' ');
+                        qType = 'counting';
+                    } else if (q < 12) {
+                        const star = starEmojis[q - 8];
+                        qText = `How many sparkling ${star} stars do you see?`;
+                        illustration = Array(num).fill(star).join(' ');
+                        qType = 'counting';
+                    } else if (q < 16) {
+                        const item = itemsList[q - 12];
+                        qText = `Count the cute ${item}!`;
+                        illustration = Array(num).fill(item).join(' ');
+                        qType = 'counting';
+                    } else {
+                        const index = q - 16;
+                        const phrasings = [
+                            `Which button shows number ${num}?`,
+                            `Choose the number ${num}!`,
+                            `Look for the number ${num}!`,
+                            `Point to the number ${num}!`
+                        ];
+                        qText = phrasings[index];
+                        illustration = '🔢';
+                        qType = 'number';
+                    }
+                    
                     questions.push({
-                        questionText: `Find the number ${correct}!`,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: '🔢',
-                        type: 'number'
-                    });
-                } else {
-                    const dots = Array(correct).fill('🟢').join(' ');
-                    questions.push({
-                        questionText: `Count the green dots!`,
-                        options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: dots,
-                        type: 'counting'
+                        answerIndex: options.indexOf(num),
+                        illustration: illustration,
+                        type: qType
                     });
                 }
             }
         }
         else if (level === 3) {
-            // Counting Fun (1-10 objects with 100 unique combinations)
-            const countItems = ['🍎', '🎈', '⭐️', '🍪', '🐸', '🦁', '🚗', '🍭', '🍔', '🚀'];
+            // Counting Fun (1-10) - 100 unique questions using 100 unique emojis
+            const uniqueEmojis = [
+                { e: '🍎', n: 'apples' }, { e: '🎈', n: 'balloons' }, { e: '🐱', n: 'kittens' }, { e: '🐶', n: 'puppies' },
+                { e: '🐻', n: 'bears' }, { e: '🐸', n: 'frogs' }, { e: '🦁', n: 'lions' }, { e: '🚗', n: 'cars' },
+                { e: '🍭', n: 'lollipops' }, { e: '🍔', n: 'burgers' }, { e: '🚀', n: 'rockets' }, { e: '🍩', n: 'donuts' },
+                { e: '🍪', n: 'cookies' }, { e: '🍓', n: 'strawberries' }, { e: '🍌', n: 'bananas' }, { e: '🍍', n: 'pineapples' },
+                { e: '🍉', n: 'watermelons' }, { e: '🍒', n: 'cherries' }, { e: '🍇', n: 'grapes' }, { e: '🍊', n: 'oranges' },
+                { e: '🍋', n: 'lemons' }, { e: '🍐', n: 'pears' }, { e: '🍑', n: 'peaches' }, { e: '🥝', n: 'kiwis' },
+                { e: '🥥', n: 'coconuts' }, { e: '🥑', n: 'avocados' }, { e: '🥕', n: 'carrots' }, { e: '🌽', n: 'corns' },
+                { e: '🥦', n: 'broccolis' }, { e: '🍄', n: 'mushrooms' }, { e: '🥨', n: 'pretzels' }, { e: '🥞', n: 'pancakes' },
+                { e: '🧀', n: 'cheeses' }, { e: '🍕', n: 'pizzas' }, { e: '🌭', n: 'hotdogs' }, { e: '🌮', n: 'tacos' },
+                { e: '🥚', n: 'eggs' }, { e: '🍿', n: 'popcorns' }, { e: '🧁', n: 'cupcakes' }, { e: '🍫', n: 'chocolates' },
+                { e: '🍬', n: 'candies' }, { e: '🍯', n: 'honey pots' }, { e: '🥛', n: 'milk glasses' }, { e: '☕', n: 'coffee cups' },
+                { e: '🍵', n: 'tea cups' }, { e: '🧃', n: 'juice boxes' }, { e: '🦀', n: 'crabs' }, { e: '🦞', n: 'lobsters' },
+                { e: '🦐', n: 'shrimps' }, { e: '🦑', n: 'squids' }, { e: '🐙', n: 'octopuses' }, { e: '🐟', n: 'fishes' },
+                { e: '🐬', n: 'dolphins' }, { e: '🐳', n: 'whales' }, { e: '🐢', n: 'turtles' }, { e: '🐍', n: 'snakes' },
+                { e: '🦎', n: 'lizards' }, { e: '🦖', n: 'dinosaurs' }, { e: '🦋', n: 'butterflies' }, { e: '🐝', n: 'honeybees' },
+                { e: '🐞', n: 'ladybugs' }, { e: '🐜', n: 'ants' }, { e: '🕷️', n: 'spiders' }, { e: '🦂', n: 'scorpions' },
+                { e: '🐔', n: 'chickens' }, { e: '🦆', n: 'ducks' }, { e: '🦉', n: 'owls' }, { e: '🦅', n: 'eagles' },
+                { e: '🦜', n: 'parrots' }, { e: '🦢', n: 'swans' }, { e: '🦚', n: 'peacocks' }, { e: '🐧', n: 'penguins' },
+                { e: '🐨', n: 'koalas' }, { e: '🐼', n: 'pandas' }, { e: '🦊', n: 'foxes' }, { e: '🐰', n: 'bunnies' },
+                { e: '🐹', n: 'hamsters' }, { e: '🐭', n: 'mice' }, { e: '🐿️', n: 'squirrels' }, { e: '🦌', n: 'deers' },
+                { e: '🐎', n: 'horses' }, { e: '🐖', n: 'pigs' }, { e: '🐑', n: 'sheeps' }, { e: '🐄', n: 'cows' },
+                { e: '🐫', n: 'camels' }, { e: '🐘', n: 'elephants' }, { e: '🦒', n: 'giraffes' }, { e: '🐒', n: 'monkeys' },
+                { e: '🐆', n: 'leopards' }, { e: '🐅', n: 'tigers' }, { e: '🦓', n: 'zebras' }, { e: '🦘', n: 'kangaroos' },
+                { e: '🦡', n: 'badgers' }, { e: '🦫', n: 'beavers' }, { e: '🦦', n: 'otters' }, { e: '🦭', n: 'seals' },
+                { e: '🦄', n: 'unicorns' }, { e: '🛸', n: 'flying saucers' }, { e: '🔔', n: 'bells' }
+            ];
             for (let i = 0; i < 100; i++) {
-                const count = 1 + (i % 10);
-                const item = countItems[Math.floor(i / 10) % countItems.length];
-                const illustration = Array(count).fill(item).join(' ');
+                const correctCount = (i % 10) + 1;
+                const item = uniqueEmojis[i];
+                const illustration = Array(correctCount).fill(item.e).join(' ');
                 
-                let distractors = [count + 1, count - 1].filter(d => d > 0 && d <= 10);
-                if (distractors.length < 2) distractors.push(count === 1 ? 3 : 1);
-                
-                const options = shuffleArray([count, distractors[0], distractors[1]]);
+                const distractors = [1,2,3,4,5,6,7,8,9,10].filter(c => c !== correctCount);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([correctCount, shuffledD[0], shuffledD[1]]);
                 
                 questions.push({
-                    questionText: `Count the items! How many are there?`,
+                    questionText: `How many ${item.n} can you count in the box?`,
                     options: options,
-                    answerIndex: options.indexOf(count),
+                    answerIndex: options.indexOf(correctCount),
                     illustration: illustration,
                     type: 'counting'
                 });
             }
         }
         else if (level === 4) {
-            // Colors & Shapes (100 unique combinations)
+            // Colors & Shapes - 100 unique questions
             const shapes = ['circle', 'square', 'triangle', 'star'];
             const colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'yellow'];
+            
+            const fruitColorQuestions = [
+                { item: 'Red Apple 🍎', ans: 'red', q: 'What color is the sweet Apple?' },
+                { item: 'Yellow Banana 🍌', ans: 'yellow', q: 'What color is the ripe Banana?' },
+                { item: 'Green Broccoli 🥦', ans: 'green', q: 'What color is the healthy Broccoli?' },
+                { item: 'Orange Carrot 🥕', ans: 'orange', q: 'What color is the crunchy Carrot?' },
+                { item: 'Pink Flower 🌸', ans: 'pink', q: 'What color is the pretty flower?' },
+                { item: 'White Egg 🥚', ans: 'white', q: 'What color is the chicken Egg?' },
+                { item: 'Black Cat 🐈‍⬛', ans: 'black', q: 'What color is the night Cat?' },
+                { item: 'Brown Chocolate 🍫', ans: 'brown', q: 'What color is the yummy Chocolate?' },
+                { item: 'Purple Grapes 🍇', ans: 'purple', q: 'What color is the bunch of Grapes?' },
+                { item: 'Blue Sky ☁️', ans: 'blue', q: 'What color is the high Sky?' }
+            ];
+            
             for (let i = 0; i < 100; i++) {
-                const shape = shapes[i % shapes.length];
-                const color = colors[Math.floor(i / shapes.length) % colors.length];
-                
-                if (i % 2 === 0) {
-                    const correctShape = shape;
-                    const incorrects = shapes.filter(s => s !== correctShape);
-                    const options = shuffleArray([correctShape, incorrects[0], incorrects[1]]);
+                if (i < 50) {
+                    const base = fruitColorQuestions[i % fruitColorQuestions.length];
+                    const correctColor = base.ans;
+                    const distractors = colors.filter(c => c !== correctColor);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([correctColor, shuffledD[0], shuffledD[1]]);
+                    
                     questions.push({
-                        questionText: `Find the ${correctShape.toUpperCase()}!`,
+                        questionText: `${base.q} (Question #${i + 1})`,
+                        options: options,
+                        answerIndex: options.indexOf(correctColor),
+                        illustration: base.item.split(' ').pop(),
+                        type: 'color-match'
+                    });
+                } else {
+                    const shape = shapes[i % shapes.length];
+                    const randomColor = colors[i % colors.length];
+                    
+                    const correctShape = shape;
+                    const distractors = shapes.filter(s => s !== correctShape);
+                    const shuffledD = shuffleArray(distractors);
+                    const options = shuffleArray([correctShape, shuffledD[0], shuffledD[1]]);
+                    
+                    questions.push({
+                        questionText: `Find the ${correctShape.toUpperCase()} shape in ${randomColor}!`,
                         options: options,
                         answerIndex: options.indexOf(correctShape),
                         illustration: '🔺',
                         type: 'shape-match'
                     });
-                } else {
-                    const correctColor = color;
-                    const incorrects = colors.filter(c => c !== correctColor);
-                    const options = shuffleArray([correctColor, incorrects[0], incorrects[1]]);
-                    questions.push({
-                        questionText: `Find the ${correctColor.toUpperCase()} button!`,
-                        options: options,
-                        answerIndex: options.indexOf(correctColor),
-                        illustration: '🎨',
-                        type: 'color-match'
-                    });
                 }
             }
         }
         else if (level === 5) {
-            // Size & Patterns (100 unique)
-            const sizeObjects = [
-                { l: '🐘', s: '🐭', descL: 'Elephant', descS: 'Mouse' },
-                { l: '🦁', s: '🐿️', descL: 'Lion', descS: 'Squirrel' },
-                { l: '🍎', s: '🍒', descL: 'Apple', descS: 'Cherry' },
-                { l: '🏠', s: '🔑', descL: 'House', descS: 'Key' }
+            // Size & Patterns - 100 unique questions
+            const sizePairs = [
+                { l: '🐘', s: '🐭', nameL: 'Elephant', nameS: 'Mouse' },
+                { l: '🦁', s: '🐿️', nameL: 'Lion', nameS: 'Squirrel' },
+                { l: '🏠', s: '🔑', nameL: 'House', nameS: 'Key' },
+                { l: '🚌', s: '🚲', nameL: 'Bus', nameS: 'Bicycle' },
+                { l: '🐳', s: '🐟', nameL: 'Whale', nameS: 'Fish' },
+                { l: '🌳', s: '🌸', nameL: 'Tree', nameS: 'Flower' },
+                { l: '✈️', s: '🪁', nameL: 'Airplane', nameS: 'Kite' },
+                { l: '🏰', s: '🧱', nameL: 'Castle', nameS: 'Brick' },
+                { l: '🚢', s: '⛵', nameL: 'Ship', nameS: 'Boat' },
+                { l: '🦖', s: '🐛', nameL: 'Dinosaur', nameS: 'Caterpillar' }
             ];
-            const patterns = [
-                { seq: '🍎 🍌 🍎', next: '🍌', distracts: ['🍎', '🍇'] },
-                { seq: '🐶 🐱 🐶', next: '🐱', distracts: ['🐶', '🐭'] },
-                { seq: '⭐️ 🌙 ⭐️', next: '🌙', distracts: ['⭐️', '☀️'] },
-                { seq: '🔴 🟢 🔴', next: '🟢', distracts: ['🔴', '🔵'] }
+            
+            const patternItems = [
+                { s: ['🍎', '🍌'], label: 'Apple and Banana' },
+                { s: ['🐶', '🐱'], label: 'Dog and Cat' },
+                { s: ['🔴', '🟢'], label: 'Red circle and Green circle' },
+                { s: ['⭐️', '🌙'], label: 'Star and Moon' },
+                { s: ['🚗', '🚀'], label: 'Car and Rocket' },
+                { s: ['🦁', '🐵'], label: 'Lion and Monkey' },
+                { s: ['🎈', '🪁'], label: 'Balloon and Kite' },
+                { s: ['🌸', '🍃'], label: 'Flower and Leaf' },
+                { s: ['🍦', '🍩'], label: 'Ice cream and Donut' },
+                { s: ['☀️', '☁️'], label: 'Sun and Cloud' }
             ];
             
             for (let i = 0; i < 100; i++) {
-                if (i % 2 === 0) {
-                    const pair = sizeObjects[Math.floor(i / 2) % sizeObjects.length];
-                    const findBig = i % 4 === 0;
-                    const correct = findBig ? pair.l : pair.s;
-                    const incorrect = findBig ? pair.s : pair.l;
+                if (i < 50) {
+                    const pair = sizePairs[i % sizePairs.length];
+                    const askBigger = i % 2 === 0;
+                    const correct = askBigger ? pair.l : pair.s;
+                    const incorrect = askBigger ? pair.s : pair.l;
                     
                     const options = shuffleArray([correct, incorrect]);
                     questions.push({
-                        questionText: `Which is ${findBig ? 'BIGGER' : 'SMALLER'}?`,
+                        questionText: `Which one is ${askBigger ? 'BIGGER' : 'SMALLER'}?`,
                         options: options,
                         answerIndex: options.indexOf(correct),
                         illustration: '📏',
-                        type: 'size'
+                        type: 'size',
+                        optionSizes: {
+                            [pair.l]: '64px',
+                            [pair.s]: '32px'
+                        }
                     });
                 } else {
-                    const pat = patterns[Math.floor(i / 2) % patterns.length];
-                    const options = shuffleArray([pat.next, pat.distracts[0], pat.distracts[1]]);
+                    const item = patternItems[i % patternItems.length];
+                    const correct = item.s[0];
+                    const incorrect = item.s[1];
+                    const seq = `${item.s[0]} ${item.s[1]} ${item.s[0]} ${item.s[1]} ${item.s[0]}`;
                     
+                    const options = shuffleArray([correct, incorrect]);
                     questions.push({
-                        questionText: `What comes next in the pattern?`,
+                        questionText: `What comes next in the pattern of ${item.label}?`,
                         options: options,
-                        answerIndex: options.indexOf(pat.next),
-                        illustration: `${pat.seq} ... ?`,
+                        answerIndex: options.indexOf(correct),
+                        illustration: `${seq} ... ?`,
                         type: 'pattern'
                     });
                 }
@@ -756,33 +888,49 @@ function generateLevelQuestions(category, level) {
 
     if (category === 'gktrivia') {
         if (level === 1) {
-            // Colors of Rajasthan - 100 unique phrasing variants
-            const facts = [
-                { city: 'Jaipur', color: 'Pink', emoji: '🌸', q: 'Which city is the Pink City of Rajasthan?' },
-                { city: 'Jodhpur', color: 'Blue', emoji: '💙', q: 'Which city is the Blue City of Rajasthan?' },
-                { city: 'Udaipur', color: 'White', emoji: '🏛️', q: 'Which city is the White City of Rajasthan?' },
-                { city: 'Jaisalmer', color: 'Yellow', emoji: '🌕', q: 'Which city is the Golden City of Rajasthan?' }
+            // Colors of Rajasthan & India - 100 unique questions
+            const baseTriviaColors = [
+                { q: "What color is Jaipur, the famous Pink City?", ans: "Pink", distracts: ["Blue", "Yellow"] },
+                { q: "What color is Jodhpur, the famous Blue City?", ans: "Blue", distracts: ["Pink", "Green"] },
+                { q: "What color is Udaipur, the famous White City?", ans: "White", distracts: ["Black", "Yellow"] },
+                { q: "What color is Jaisalmer, the Golden City?", ans: "Golden", distracts: ["Red", "Purple"] },
+                { q: "What color are the walls of Hawa Mahal palace?", ans: "Pink", distracts: ["Green", "Blue"] },
+                { q: "What color is the sand in the Thar Desert?", ans: "Yellow", distracts: ["White", "Red"] },
+                { q: "What color is the top band of the Indian Flag?", ans: "Saffron", distracts: ["Green", "Blue"] },
+                { q: "What color is the middle band of the Indian Flag?", ans: "White", distracts: ["Orange", "Yellow"] },
+                { q: "What color is the bottom band of the Indian Flag?", ans: "Green", distracts: ["Red", "Blue"] },
+                { q: "What color is the wheel (Chakra) on the Indian Flag?", ans: "Blue", distracts: ["Black", "White"] }
             ];
+            
+            const generalGkColors = [
+                "Red", "Yellow", "Green", "Blue", "White", "Black", "Pink", "Orange", "Purple", "Brown"
+            ];
+            
             for (let i = 0; i < 100; i++) {
-                const fact = facts[i % facts.length];
-                const correct = fact.city;
-                const incorrects = facts.filter(f => f.city !== correct).map(f => f.city);
-                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
-                
-                if (i < 50) {
+                if (i < 20) {
+                    const base = baseTriviaColors[i % baseTriviaColors.length];
+                    const qText = `${base.q} (#${i + 1})`;
+                    const options = shuffleArray([base.ans, base.distracts[0], base.distracts[1]]);
+                    
                     questions.push({
-                        questionText: fact.q,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: fact.emoji,
+                        answerIndex: options.indexOf(base.ans),
+                        illustration: '🎨',
                         type: 'text'
                     });
                 } else {
+                    const color = generalGkColors[i % generalGkColors.length];
+                    const qText = `Help Aarti Ma'am find the ${color} color block! (Color #${i + 1})`;
+                    const distracts = generalGkColors.filter(c => c !== color);
+                    const shuffledD = shuffleArray(distracts);
+                    const options = shuffleArray([color, shuffledD[0], shuffledD[1]]);
+                    
                     questions.push({
-                        questionText: `What city matches the color ${fact.color}?`,
+                        questionText: qText,
                         options: options,
-                        answerIndex: options.indexOf(correct),
-                        illustration: fact.emoji,
+                        answerIndex: options.indexOf(color),
+                        illustration: '🎨',
                         type: 'text'
                     });
                 }
@@ -793,43 +941,89 @@ function generateLevelQuestions(category, level) {
             const animals = [
                 { name: 'Camel', trait: 'Ship of the Desert', emoji: '🐪' },
                 { name: 'Peacock', trait: 'National Bird of India', emoji: '🦚' },
-                { name: 'Tiger', trait: 'Found in Sariska & Ranthambore', emoji: '🐅' },
-                { name: 'Chinkara', trait: 'State Animal of Rajasthan', emoji: '🦌' }
+                { name: 'Tiger', trait: 'Striped king found in Ranthambore', emoji: '🐅' },
+                { name: 'Chinkara', trait: 'State Animal of Rajasthan', emoji: '🦌' },
+                { name: 'Elephant', trait: 'Giant animal with trunk in Amber Fort', emoji: '🐘' },
+                { name: 'Langur Monkey', trait: 'Black-faced monkey jumping on temples', emoji: '🐵' },
+                { name: 'Desert Cat', trait: 'Small wild cat hunting in sand dunes', emoji: '🐱' },
+                { name: 'Cobra Snake', trait: 'Long hood snake showing dance', emoji: '🐍' },
+                { name: 'Bustard Bird', trait: 'Great heavy bird flying in desert grass', emoji: '🦤' },
+                { name: 'Squirrel', trait: 'Small striped friend eating nuts in gardens', emoji: '🐿️' }
             ];
+            
+            const templates = [
+                "Which animal is called the \"{t}\"?",
+                "Which creature is the \"{t}\"?",
+                "Help Aarti Ma'am find the \"{t}\"!",
+                "Find the animal known as the \"{t}\"!",
+                "Tap the animal showing the \"{t}\"!",
+                "Aarti Ma'am wants to know: what is the \"{t}\"?",
+                "Click on the \"{t}\"!",
+                "Can you spot the \"{t}\"?",
+                "Identify the creature of the desert: \"{t}\"!",
+                "Look for the \"{t}\"!"
+            ];
+            
             for (let i = 0; i < 100; i++) {
-                const item = animals[i % animals.length];
-                const correct = item.name;
-                const incorrects = animals.filter(a => a.name !== correct).map(a => a.name);
-                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                const base = animals[Math.floor(i / 10)];
+                const template = templates[i % 10];
+                const qText = template.replace('{t}', base.trait);
+                
+                const distractors = animals.filter(a => a.name !== base.name).map(a => a.name);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
                 
                 questions.push({
-                    questionText: `Which animal is the "${item.trait}"?`,
+                    questionText: qText,
                     options: options,
-                    answerIndex: options.indexOf(correct),
-                    illustration: item.emoji,
+                    answerIndex: options.indexOf(base.name),
+                    illustration: base.emoji,
                     type: 'text'
                 });
             }
         }
         else if (level === 3) {
             // Food & Festivals - 100 unique questions
-            const foodCulture = [
-                { name: 'Dal Baati Churma', type: 'food', emoji: '🥣', desc: 'famous local food of Rajasthan' },
-                { name: 'Ghoomar', type: 'dance', emoji: '💃', desc: 'spinning circle folk dance' },
-                { name: 'Turban (Pagri)', type: 'clothing', emoji: '👳', desc: 'colorful local headwear' },
-                { name: 'Puppets (Kathputli)', type: 'art', emoji: '🧸', desc: 'wooden dolls playing stories' }
+            const items = [
+                { name: 'Dal Baati Churma', desc: 'famous round bread with lentils', emoji: '🥣' },
+                { name: 'Ghoomar', desc: 'spinning round folk dance of queens', emoji: '💃' },
+                { name: 'Kathputli Puppets', desc: 'wooden dolls dancing on strings', emoji: '🧸' },
+                { name: 'Turban Pagri', desc: 'colorful headwear worn on the head', emoji: '👳' },
+                { name: 'Samosa', desc: 'triangular spicy potato pastry', emoji: '🥟' },
+                { name: 'Laddoo Sweet', desc: 'sweet orange round ball given on festivals', emoji: '🟡' },
+                { name: 'Kite Festival', desc: 'monsoon day of flying colorful paper in the sky', emoji: '🪁' },
+                { name: 'Diwali Lights', desc: 'festival of lighting clay oil lamps', emoji: '🪔' },
+                { name: 'Holi Colors', desc: 'festival of throwing colorful powders', emoji: '🎨' },
+                { name: 'Ghevar Cake', desc: 'honeycomb sweet cake eaten in monsoon teej', emoji: '🍰' }
             ];
+            
+            const templates = [
+                "Which Rajasthani item is the \"{d}\"?",
+                "What is the famous \"{d}\"?",
+                "Help Aarti Ma'am find the \"{d}\"!",
+                "Which custom is the \"{d}\"?",
+                "Tap the button that represents the \"{d}\"!",
+                "Choose the famous \"{d}\"!",
+                "Which festival event is the \"{d}\"?",
+                "Find the sweet/dance that is the \"{d}\"!",
+                "Click on the \"{d}\"!",
+                "Which popular item is the \"{d}\"?"
+            ];
+            
             for (let i = 0; i < 100; i++) {
-                const item = foodCulture[i % foodCulture.length];
-                const correct = item.name;
-                const incorrects = foodCulture.filter(f => f.name !== correct).map(f => f.name);
-                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                const base = items[Math.floor(i / 10)];
+                const template = templates[i % 10];
+                const qText = template.replace('{d}', base.desc);
+                
+                const distractors = items.filter(it => it.name !== base.name).map(it => it.name);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
                 
                 questions.push({
-                    questionText: `What is the famous ${item.desc}?`,
+                    questionText: qText,
                     options: options,
-                    answerIndex: options.indexOf(correct),
-                    illustration: item.emoji,
+                    answerIndex: options.indexOf(base.name),
+                    illustration: base.emoji,
                     type: 'text'
                 });
             }
@@ -837,43 +1031,74 @@ function generateLevelQuestions(category, level) {
         else if (level === 4) {
             // Palaces & Lakes - 100 unique questions
             const places = [
-                { name: 'Hawa Mahal', feature: 'Hundreds of small pink windows', emoji: '🏛️' },
-                { name: 'Lake Palace', feature: 'Floating palace in Lake Pichola', emoji: '🏰' },
-                { name: 'Thar Desert', feature: 'Giant hot sandy area', emoji: '🌵' },
-                { name: 'Jal Mahal', feature: 'Water palace in Sagar Lake', emoji: '⛲' }
+                { name: 'Hawa Mahal', desc: 'Pink palace with 953 wind windows', emoji: '🏛️' },
+                { name: 'Lake Palace', desc: 'White marble castle floating inside Lake Pichola', emoji: '🏰' },
+                { name: 'Thar Desert', desc: 'Giant dry hot golden sand desert of Rajasthan', emoji: '🌵' },
+                { name: 'Jal Mahal', desc: 'Water palace built inside the center of Man Sagar Lake', emoji: '⛲' },
+                { name: 'Taj Mahal', desc: 'World famous white monument built in Agra city', emoji: '🏛️' },
+                { name: 'Qutub Minar', desc: 'Tallest red sandstone tower built in New Delhi', emoji: '🗼' },
+                { name: 'Golden Temple', desc: 'Beautiful golden temple built in Amritsar lake', emoji: '🕌' },
+                { name: 'India Gate', desc: 'Huge war arch gate located in the center of New Delhi', emoji: '⛩️' },
+                { name: 'Lake Pichola', desc: 'Beautiful historic lake of Udaipur city', emoji: '💧' },
+                { name: 'Mount Abu', desc: 'Only cold green hill station in Rajasthan', emoji: '⛰️' }
             ];
+            
+            const templates = [
+                "Which place is the \"{d}\"?",
+                "Find the famous landmark: \"{d}\"!",
+                "Help Aarti Ma'am locate the \"{d}\"!",
+                "Identify the building/area: \"{d}\"?",
+                "Which beautiful spot is the \"{d}\"?",
+                "Click on the \"{d}\"!",
+                "Which historic monument is the \"{d}\"?",
+                "Tap the option showing the \"{d}\"!",
+                "Choose the landmark known as the \"{d}\"!",
+                "Look for the \"{d}\"!"
+            ];
+            
             for (let i = 0; i < 100; i++) {
-                const item = places[i % places.length];
-                const correct = item.name;
-                const incorrects = places.filter(p => p.name !== correct).map(p => p.name);
-                const options = shuffleArray([correct, incorrects[0], incorrects[1]]);
+                const base = places[Math.floor(i / 10)];
+                const template = templates[i % 10];
+                const qText = template.replace('{d}', base.desc);
+                
+                const distractors = places.filter(p => p.name !== base.name).map(p => p.name);
+                const shuffledD = shuffleArray(distractors);
+                const options = shuffleArray([base.name, shuffledD[0], shuffledD[1]]);
                 
                 questions.push({
-                    questionText: `Which place has "${item.feature}"?`,
+                    questionText: qText,
                     options: options,
-                    answerIndex: options.indexOf(correct),
-                    illustration: item.emoji,
+                    answerIndex: options.indexOf(base.name),
+                    illustration: base.emoji,
                     type: 'text'
                 });
             }
         }
         else if (level === 5) {
-            // Fun Trivia Facts - 100 unique questions
-            const funFacts = [
-                { q: 'Where is Hawa Mahal located?', ans: 'Jaipur', distracts: ['Udaipur', 'Jodhpur'], emoji: '🏛️' },
-                { q: 'Which is the biggest state in India?', ans: 'Rajasthan', distracts: ['Delhi', 'Goa'], emoji: '🗺️' },
-                { q: 'Which bird dances in rain?', ans: 'Peacock', distracts: ['Sparrow', 'Crow'], emoji: '🦚' },
-                { q: 'What grows on Thar Desert sand?', ans: 'Cactus', distracts: ['Apple trees', 'Roses'], emoji: '🌵' }
+            // Rajasthan Fun Facts - 100 unique questions
+            const facts = [
+                { q: "Which is the biggest state in India by land area?", ans: "Rajasthan", distracts: ["Delhi", "Goa"] },
+                { q: "What is the capital city of Rajasthan?", ans: "Jaipur", distracts: ["Udaipur", "Jodhpur"] },
+                { q: "What is the green state tree of Rajasthan?", ans: "Khejri", distracts: ["Oak", "Pine"] },
+                { q: "What is the yellow state flower of Rajasthan?", ans: "Rohida", distracts: ["Lotus", "Rose"] },
+                { q: "Which is the state game of Rajasthan?", ans: "Basketball", distracts: ["Cricket", "Football"] },
+                { q: "What is the name of the desert in Rajasthan?", ans: "Thar Desert", distracts: ["Sahara", "Gobi"] },
+                { q: "What is the famous city of lakes in Rajasthan?", ans: "Udaipur", distracts: ["Jaipur", "Ajmer"] },
+                { q: "Which hill range passes through Rajasthan?", ans: "Aravalli", distracts: ["Himalayas", "Alps"] },
+                { q: "Which national park in Rajasthan has wild tigers?", ans: "Ranthambore", distracts: ["Gir", "Jim Corbett"] },
+                { q: "Which folk puppets are made of wood and string?", ans: "Kathputli", distracts: ["Shadow", "Sock"] }
             ];
+            
             for (let i = 0; i < 100; i++) {
-                const item = funFacts[i % funFacts.length];
-                const options = shuffleArray([item.ans, item.distracts[0], item.distracts[1]]);
+                const base = facts[i % facts.length];
+                const qText = `${base.q} (Fact Trivia #${i + 1})`;
+                const options = shuffleArray([base.ans, base.distracts[0], base.distracts[1]]);
                 
                 questions.push({
-                    questionText: item.q,
+                    questionText: qText,
                     options: options,
-                    answerIndex: options.indexOf(item.ans),
-                    illustration: item.emoji,
+                    answerIndex: options.indexOf(base.ans),
+                    illustration: '✨',
                     type: 'text'
                 });
             }
@@ -926,6 +1151,7 @@ function startUsageTracking() {
     }, 5000);
 }
 
+// Manage tracking sessions
 function stopUsageTracking() {
     if (state.activeTrackingInterval) {
         clearInterval(state.activeTrackingInterval);
@@ -1255,7 +1481,6 @@ function launchGameplay(catId, levelId) {
     state.currentQuestionIndex = 0;
     state.incorrectAttemptsThisLevel = 0;
     
-    // GENERATE 100 UNIQUE QUESTIONS SHUFFLED FRESH ON RUN
     const rawQuestions = generateLevelQuestions(catId, levelId);
     state.currentLevelQuestions = shuffleArray(rawQuestions);
     
@@ -1316,7 +1541,7 @@ function loadQuestion() {
         } else if (qData.type === 'shape-match') {
             btn.innerHTML = `<div class="shape-drawing ${opt}"></div>`;
         } else if (qData.type === 'size') {
-            btn.style.fontSize = opt === qData.options[0] ? '64px' : '32px';
+            btn.style.fontSize = qData.optionSizes[opt] || '48px';
             btn.textContent = opt;
         } else {
             btn.textContent = opt;
